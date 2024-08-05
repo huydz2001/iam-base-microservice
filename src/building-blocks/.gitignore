@@ -56,3 +56,12 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 .husky
+
+# Ignore Yarn's lockfile
+yarn.lock
+
+# Ignore npm's lockfile
+package-lock.json
+
+# TypeScript
+build
