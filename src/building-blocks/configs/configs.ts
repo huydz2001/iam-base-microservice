@@ -109,5 +109,9 @@ export default {
     factor: envVars.RETRY_FACTOR,
     minTimeout: envVars.RETRY_MIN_TIMEOUT,
     maxTimeout: envVars.RETRY_MAX_TIMEOUT
+  },
+  monitoring: {
+    jaegerEndpoint: envVars.MONITORING_JAEGER_ENDPOINT,
+    zipkinEndpoint: envVars.MONITORING_ZIPKIN_ENDPOINT
   }
 };
