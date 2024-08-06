@@ -67,3 +67,6 @@ yarn.lock
 
 # Ignore npm's lockfile
 package-lock.json
+
+# Volumes docker
+/src/storages/*

@@ -91,7 +91,7 @@ export default {
     port: envVars.POSTGRES_PORT,
     username: envVars.POSTGRES_USERNAME,
     password: envVars.POSTGRES_PASSWORD,
-    database: envVars.POSTGRES_Database,
+    database: envVars.POSTGRES_DB,
     synchronize: envVars.POSTGRES_SYNCHRONIZE,
     autoLoadEntities: envVars.POSTGRES_AUTO_LOAD_ENTITIES,
     entities: envVars.POSTGRES_ENTITIES,
