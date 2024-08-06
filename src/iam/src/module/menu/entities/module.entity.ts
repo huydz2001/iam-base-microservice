@@ -1,6 +1,6 @@
 import { Group } from '../../group/entities/group.entity';
 import { Permision } from '../../permission/entities/permission.entity';
-import { EntityAuditBase } from '../../../../../building-blocks/databases/abstracts/entity_audit_base.abstract';
+import { EntityAuditBase } from 'building-blocks/databases/abstracts/entity_audit_base.abstract';
 import {
   Column,
   Entity,

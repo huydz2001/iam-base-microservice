@@ -1,9 +1,17 @@
 import { Modules } from '../../menu/entities/module.entity';
 import { User } from '../../user/entities/user.entity';
-import { EntityAuditBase } from '../../../../../building-blocks/databases/abstracts/entity_audit_base.abstract';
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
+import { EntityAuditBase } from 'building-blocks/databases/abstracts/entity_audit_base.abstract';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 
 @Entity({ name: 'groups' })
+@Index('idx_group_name', ['name'])
 export class Group extends EntityAuditBase<string> {
   @Column({ nullable: false })
   name: string;

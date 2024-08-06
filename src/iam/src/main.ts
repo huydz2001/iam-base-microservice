@@ -1,14 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import configs from '../../building-blocks/configs/configs';
+import configs from 'building-blocks/configs/configs';
 import { Request, Response } from 'express';
-import { PrometheusMetrics } from '../../building-blocks/monitoring/prometheus.metrics';
-import { ErrorHandlersFilter } from '../../building-blocks/filters/error-handlers.filter';
+import { PrometheusMetrics } from 'building-blocks/monitoring/prometheus.metrics';
+import { ErrorHandlersFilter } from 'building-blocks/filters/error-handlers.filter';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
-import { ErrorsInterceptor } from './../../building-blocks/interceptors/error.interceptor';
-import { LoggerInterceptor } from './../../building-blocks/interceptors/logger.interceptor';
-import { ResponseInterceptor } from './../../building-blocks/interceptors/response.interceptor';
+import { LoggerInterceptor } from 'building-blocks/interceptors/logger.interceptor';
+import { ResponseInterceptor } from 'building-blocks/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,8 +24,8 @@ async function bootstrap() {
   });
 
   app.useGlobalInterceptors(
-    new ErrorsInterceptor(),
     new LoggerInterceptor(),
+    // new ErrorsInterceptor(),
     new ResponseInterceptor(),
   );
 
@@ -35,6 +34,7 @@ async function bootstrap() {
     .setDescription(`${configs.serviceName} api description`)
     .setVersion('1.0')
     .addBearerAuth()
+    .addServer(`http://localhost:${port}`, 'Local')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);

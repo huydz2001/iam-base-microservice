@@ -7,6 +7,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -14,11 +15,12 @@ import { ProblemDocument } from 'http-problem-details';
 import { ValidationError } from 'joi';
 import { ApplicationException } from '../types/exceptions/application.exception';
 import { serializeObject } from '../utils/serilization';
+import HttpClientException from '../types/exceptions/http-client.exception';
 
 @Catch()
 export class ErrorHandlersFilter implements ExceptionFilter {
   private readonly logger = new Logger(ErrorHandlersFilter.name);
-  public catch(err: any, host: ArgumentsHost) {
+  catch(err: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
@@ -36,7 +38,7 @@ export class ErrorHandlersFilter implements ExceptionFilter {
       statusCode = HttpStatus.BAD_REQUEST;
     }
     // BadRequestException
-    else if (err instanceof BadRequestException) {
+    else if (err.constructor.name == 'BadRequestException') {
       problem = this.createProblemDocument(
         BadRequestException.name,
         err.message,
@@ -46,7 +48,7 @@ export class ErrorHandlersFilter implements ExceptionFilter {
       statusCode = HttpStatus.BAD_REQUEST;
     }
     // UnauthorizedException
-    else if (err instanceof UnauthorizedException) {
+    else if (err.constructor.name == 'UnauthorizedException') {
       problem = this.createProblemDocument(
         UnauthorizedException.name,
         err.message,
@@ -56,7 +58,7 @@ export class ErrorHandlersFilter implements ExceptionFilter {
       statusCode = HttpStatus.UNAUTHORIZED;
     }
     // ConflictException
-    else if (err instanceof ConflictException) {
+    else if (err.constructor.name == 'ConflictException') {
       problem = this.createProblemDocument(
         ConflictException.name,
         err.message,
@@ -65,8 +67,29 @@ export class ErrorHandlersFilter implements ExceptionFilter {
       );
       statusCode = HttpStatus.CONFLICT;
     }
+    // NotFoundException
+    else if (err.constructor.name == 'NotFoundException') {
+      problem = this.createProblemDocument(
+        NotFoundException.name,
+        err.message,
+        err.stack,
+        err.getStatus()
+      );
+      statusCode = HttpStatus.NOT_FOUND;
+    }
+    // HttpClientException
+    else if (err instanceof HttpClientException) {
+      problem = this.createProblemDocument(
+        HttpClientException.name,
+        err.message,
+        err.stack,
+        err.statusCode
+      );
+      statusCode = HttpStatus.CONFLICT;
+    }
+
     // HttpException
-    else if (err instanceof HttpException) {
+    else if (err.constructor.name == 'HttpException') {
       problem = this.createProblemDocument(
         HttpException.name,
         err.message,
@@ -106,10 +129,10 @@ export class ErrorHandlersFilter implements ExceptionFilter {
     status: number
   ): ProblemDocument {
     return new ProblemDocument({
+      status,
       type,
       title,
-      detail,
-      status
+      detail
     });
   }
 }

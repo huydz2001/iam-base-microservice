@@ -1,4 +1,4 @@
-import { EntityBase } from '../../../../../building-blocks/databases/abstracts/entity_base.abstract';
+import { EntityBase } from 'building-blocks/databases/abstracts/entity_base.abstract';
 import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { TokenType } from '../enums/token-type.enum';

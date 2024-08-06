@@ -1,9 +1,10 @@
 import { TYPE_ACTION } from '../enums/type-action.enum';
 import { Modules } from '../../menu/entities/module.entity';
-import { EntityAuditBase } from '../../../../../building-blocks/databases/abstracts/entity_audit_base.abstract';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { EntityAuditBase } from 'building-blocks/databases/abstracts/entity_audit_base.abstract';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity({ name: 'permisions' })
+@Index('idx_permission', ['moduleId'])
 export class Permision extends EntityAuditBase<string> {
   @Column({
     type: 'enum',

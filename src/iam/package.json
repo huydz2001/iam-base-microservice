@@ -3,12 +3,11 @@
   "version": "0.0.1",
   "description": "iam service",
   "author": "Quang Huy Dao",
-  "private": true,
-  "license": "ISC",
+  "license": "MIT",
   "main": "src/main.ts",
   "scripts": {
     "build": "nest build",
-    "dev": "tsc -p tsconfig.json && nodemon src/main.ts --watch",
+    "dev": "npm run build && tsc -p tsconfig.json && nodemon src/main.ts --watch",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "typeorm": "npm run build && npx typeorm -d ./dist/iam/src/data/data-source.js",
@@ -21,6 +20,7 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/cqrs": "^10.2.7",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
@@ -35,7 +35,9 @@
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20"
+    "ts-mapper": "^1.2.4",
+    "typeorm": "^0.3.20",
+    "building-blocks": "file:../building-blocks"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
