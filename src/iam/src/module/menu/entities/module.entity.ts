@@ -1,14 +1,6 @@
-import { Group } from '../../group/entities/group.entity';
-import { Permision } from '../../permission/entities/permission.entity';
 import { EntityAuditBase } from 'building-blocks/databases/abstracts/entity_audit_base.abstract';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Permission } from '../../permission/entities/permission.entity';
 
 @Entity({ name: 'modules' })
 export class Modules extends EntityAuditBase<string> {
@@ -18,18 +10,20 @@ export class Modules extends EntityAuditBase<string> {
   @Column({ nullable: true })
   desc: string;
 
-  @OneToMany(() => Permision, (p) => p.module)
-  permisions: Permision[];
+  @OneToMany(() => Permission, (p) => p.module)
+  permisions: Permission[];
 
-  @ManyToOne(() => Modules, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'parent_id',
     referencedColumnName: 'id',
   })
-  subModules: Modules[];
+  @ManyToOne(() => Modules, (module) => module.subModules, {
+    onDelete: 'CASCADE',
+  })
+  parent: Modules;
 
-  @ManyToMany(() => Group, (g) => g.modules)
-  groups: Group[];
+  @OneToMany(() => Modules, (module) => module.parent)
+  subModules: Modules[];
 
   @Column({
     nullable: true,

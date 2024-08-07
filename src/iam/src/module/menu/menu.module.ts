@@ -4,23 +4,30 @@ import { ModuleRepository } from '../../data/repositories/module.repository';
 import { PermissionRepository } from '../../data/repositories/permission.repository';
 import { RabbitmqModule } from 'building-blocks/rabbitmq/rabbitmq.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Permission } from './entities/permission.entity';
 import { Modules } from '../menu/entities/module.entity';
-import {
-  CreatePermissionController,
-  CreatePermissionHandler,
-} from './features/v1/create-permission/create-permission';
+
 import { ConfigData } from 'building-blocks/databases/config/config-data';
+import { Permission } from '../permission/entities/permission.entity';
+import {
+  CreateModuleController,
+  CreateModuleHandler,
+} from './features/v1/create-module/create-module';
+import { Group } from '../group/entities/group.entity';
+import {
+  GetModulesController,
+  GetModulesHandler,
+} from './features/v1/get-module/get-module';
 
 @Module({
   imports: [
     CqrsModule,
     RabbitmqModule.forRoot(),
-    TypeOrmModule.forFeature([Permission, Modules]),
+    TypeOrmModule.forFeature([Permission, Modules, Group]),
   ],
   exports: [],
   providers: [
-    CreatePermissionHandler,
+    CreateModuleHandler,
+    GetModulesHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',
@@ -31,6 +38,6 @@ import { ConfigData } from 'building-blocks/databases/config/config-data';
       useClass: ModuleRepository,
     },
   ],
-  controllers: [CreatePermissionController],
+  controllers: [CreateModuleController, GetModulesController],
 })
-export class PermissionModule {}
+export class MenuModule {}

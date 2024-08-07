@@ -1,11 +1,20 @@
-import { TYPE_ACTION } from '../enums/type-action.enum';
-import { Modules } from '../../menu/entities/module.entity';
 import { EntityAuditBase } from 'building-blocks/databases/abstracts/entity_audit_base.abstract';
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+} from 'typeorm';
+import { Group } from '../../../module/group/entities/group.entity';
+import { User } from '../../../module/user/entities/user.entity';
+import { Modules } from '../../menu/entities/module.entity';
+import { TYPE_ACTION } from '../enums/type-action.enum';
 
 @Entity({ name: 'permisions' })
 @Index('idx_permission', ['moduleId'])
-export class Permision extends EntityAuditBase<string> {
+export class Permission extends EntityAuditBase<string> {
   @Column({
     type: 'enum',
     enum: TYPE_ACTION,
@@ -14,6 +23,12 @@ export class Permision extends EntityAuditBase<string> {
 
   @Column()
   desc: string;
+
+  @ManyToMany(() => Group, (g) => g.permissions)
+  groups: Group[];
+
+  @ManyToMany(() => User, (u) => u.permissions)
+  users: User[];
 
   @Column({
     name: 'module_id',
@@ -28,7 +43,7 @@ export class Permision extends EntityAuditBase<string> {
   })
   module: Modules;
 
-  constructor(item: Partial<Permision>) {
+  constructor(item: Partial<Permission>) {
     super();
     Object.assign(this, item);
   }

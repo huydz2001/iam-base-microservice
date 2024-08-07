@@ -1,6 +1,6 @@
 import { TypeMapper } from 'ts-mapper';
-import { PermissionDto } from './dtos/permission.dto';
-import { Permission } from './entities/permission.entity';
+import { ModuleDto } from './dtos/module.dto';
+import { Modules } from './entities/module.entity';
 
 export class Mapper extends TypeMapper {
   constructor() {
@@ -9,22 +9,34 @@ export class Mapper extends TypeMapper {
   }
 
   private config(): void {
-    this.createMap<Permission, PermissionDto>()
+    this.createMap<Modules, ModuleDto>()
       .map(
-        (src) => src.type,
-        (dest) => dest.type,
+        (src) => src.id,
+        (dest) => dest.id,
+      )
+      .map(
+        (src) => src.name,
+        (dest) => dest.name,
       )
       .map(
         (src) => src.desc,
         (dest) => dest.desc,
       )
       .map(
-        (src) => src.moduleId,
-        (dest) => dest.moduleId,
+        (src) => src.permisions,
+        (dest) => dest.permissions,
       )
       .map(
-        (src) => src.module,
-        (dest) => dest.module,
+        (src) => src.parentId,
+        (dest) => dest.parentId,
+      )
+      .map(
+        (src) => src.subModules,
+        (dest) => dest.subModules,
+      )
+      .map(
+        (src) => src.parent,
+        (dest) => dest.parent,
       )
       .map(
         (src) => src.createdAt,

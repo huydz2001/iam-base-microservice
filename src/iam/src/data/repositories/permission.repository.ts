@@ -1,29 +1,29 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Permision } from '../../module/permission/entities/permission.entity';
+import { Permission } from '../../module/permission/entities/permission.entity';
 
 export interface IPermissionRepository {
-  createPermission(permission: Permision): Promise<Permision>;
+  createPermission(permission: Permission): Promise<Permission>;
 
-  updatePermission(permission: Permision): Promise<void>;
+  updatePermission(permission: Permission): Promise<void>;
 
-  removePermision(permission: Permision): Promise<Permision>;
+  removePermision(permission: Permission): Promise<Permission>;
 }
 
 export class PermissionRepository implements IPermissionRepository {
   constructor(
-    @InjectRepository(Permision)
-    private readonly permissionRepository: Repository<Permision>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
   ) {}
 
-  async createPermission(permission: Permision): Promise<Permision> {
+  async createPermission(permission: Permission): Promise<Permission> {
     return await this.permissionRepository.save(permission);
   }
-  async updatePermission(permission: Permision): Promise<void> {
+  async updatePermission(permission: Permission): Promise<void> {
     await this.permissionRepository.update(permission.id, permission);
   }
 
-  async removePermision(permission: Permision): Promise<Permision> {
+  async removePermision(permission: Permission): Promise<Permission> {
     return await this.permissionRepository.remove(permission);
   }
 }

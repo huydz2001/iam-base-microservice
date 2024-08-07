@@ -7,7 +7,7 @@
   "main": "src/main.ts",
   "scripts": {
     "build": "nest build",
-    "dev": "npm run build && tsc -p tsconfig.json && nodemon src/main.ts --watch",
+    "dev": "tsc -p tsconfig.json && nodemon src/main.ts --watch",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "typeorm": "npm run build && npx typeorm -d ./dist/iam/src/data/data-source.js",

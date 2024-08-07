@@ -15,6 +15,7 @@ import { OpenTelemetryModule } from 'building-blocks/openTelemetry/open-telemetr
 import { HttpContextMiddleware } from 'building-blocks/context/context';
 import { PermissionModule } from './module/permission/permission.module';
 import { ErrorHandlersFilter } from 'building-blocks/filters/error-handlers.filter';
+import { MenuModule } from './module/menu/menu.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ErrorHandlersFilter } from 'building-blocks/filters/error-handlers.filt
     }),
     OpenTelemetryModule.forRoot(),
     PermissionModule,
+    MenuModule,
   ],
   controllers: [],
   providers: [

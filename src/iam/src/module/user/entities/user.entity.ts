@@ -5,12 +5,15 @@ import {
   Entity,
   Index,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToOne,
 } from 'typeorm';
 import { Token } from '../../auth/entities/token.entity';
 import { Profile } from './profile.entity';
 import { Role } from '../enums/role.enum';
+import { Permission } from '../../../module/permission/entities/permission.entity';
 
 @Entity({ name: 'users' })
 @Index('idx_user_email', ['email'], { unique: true })
@@ -34,6 +37,14 @@ export class User extends EntityAuditBase<string> {
 
   @Column({ default: false, name: 'is_verify_email' })
   isEmailVerified: boolean;
+
+  @ManyToMany(() => Permission, (p) => p.groups)
+  @JoinTable({
+    name: 'users_permissions',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' },
+  })
+  permissions: Permission[];
 
   @OneToOne(() => Profile, (p) => p.user)
   profile: Profile;

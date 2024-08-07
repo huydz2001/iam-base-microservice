@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuthRepository } from 'src/data/repositories/auth.repository';
-import { ProfileRepository } from 'src/data/repositories/profile.repository';
-import { UserRepository } from 'src/data/repositories/user.repository';
+import { AuthRepository } from '../../data/repositories/auth.repository';
+import { ProfileRepository } from '../../data/repositories/profile.repository';
+import { UserRepository } from '../../data/repositories/user.repository';
 
 @Module({
   imports: [],

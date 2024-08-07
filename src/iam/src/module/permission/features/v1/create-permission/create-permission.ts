@@ -24,7 +24,7 @@ import { IPermissionRepository } from '../../../../../data/repositories/permissi
 import { PermissionDto } from '../../../../../module/permission/dtos/permission.dto';
 import mapper from '../../../../../module/permission/mapping';
 import { TYPE_ACTION } from '../../../../permission/enums/type-action.enum';
-import { Permision } from '../../../entities/permission.entity';
+import { Permission } from '../../../entities/permission.entity';
 
 // ==================================================command====================================================
 export class CreatePermission {
@@ -109,13 +109,13 @@ export class CreatePermissionHandler
       throw new NotFoundException('Module not found!');
     }
 
-    let permission = new Permision({
+    let permission = new Permission({
       type: type,
       moduleId: moduleId,
       desc: desc,
     });
 
-    const userId = HttpContext.headers['userId'].toString();
+    const userId = HttpContext.headers['userId']?.toString() ?? '99';
 
     permission = this.configData.createData(permission, userId);
     permission.module = module;
@@ -125,7 +125,7 @@ export class CreatePermissionHandler
     //   new PermissionCreated(permission),
     // );
 
-    const result = mapper.map<Permision, PermissionDto>(
+    const result = mapper.map<Permission, PermissionDto>(
       permission,
       new PermissionDto(),
     );
