@@ -1,24 +1,8 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Inject,
-  NotFoundException,
-  Query,
-} from '@nestjs/common';
-import {
-  CommandHandler,
-  ICommandHandler,
-  QueryBus,
-  QueryHandler,
-} from '@nestjs/cqrs';
+import { Controller, Get, Inject, Query } from '@nestjs/common';
+import { ICommandHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { HttpContext } from 'building-blocks/context/context';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { IModuleRepository } from '../../../../../data/repositories/module.repository';
-import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
-import { Modules } from '../../../../../module/menu/entities/module.entity';
-import mapper from '../../../../../module/menu/mapping';
 
 // =================================== Caommand ==========================================
 export class GetModules {
@@ -75,7 +59,6 @@ export class GetModulesHandler implements ICommandHandler<GetModules> {
   ) {}
 
   async execute(command: GetModules): Promise<any[]> {
-    console.log(command);
     const [modulesEntity, total] = await this.moduleRepository.findModules(
       command.page,
       command.pageSize,

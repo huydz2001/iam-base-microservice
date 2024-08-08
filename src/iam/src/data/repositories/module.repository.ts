@@ -33,7 +33,6 @@ export class ModuleRepository implements IModuleRepository {
     order: 'ASC' | 'DESC',
     searchTerm?: string,
   ): Promise<[Modules[], number]> {
-    console.log(page);
     const skip = (page - 1) * pageSize;
     const take = pageSize;
 

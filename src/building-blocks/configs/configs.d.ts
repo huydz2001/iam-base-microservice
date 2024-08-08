@@ -9,6 +9,10 @@ declare const _default: {
         password: any;
         exchange: any;
     };
+    redis: {
+        host: any;
+        port: any;
+    };
     postgres: {
         host: any;
         port: any;
@@ -24,7 +28,7 @@ declare const _default: {
     };
     jwt: {
         secret: any;
-        accessExpirationMinutes: any;
+        accessExpirationHours: any;
         refreshExpirationDays: any;
     };
     retry: {

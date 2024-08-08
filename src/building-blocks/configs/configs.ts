@@ -45,6 +45,8 @@ const envVarsSchema = Joi.object()
     POSTGRES_MIGRATIONS_RUN: Joi.boolean()
       .default(false)
       .description('Run migrations after running project'),
+    REDIS_HOST: Joi.string().default('localhost').description('Redis host'),
+    REDIS_PORT: Joi.number().default(6379).description('Redis port'),
     RABBITMQ_Host: Joi.string().default('localhost').description('Rabbitmq host'),
     RABBITMQ_PORT: Joi.number().default(5672).description('Rabbitmq port'),
     RABBITMQ_USERNAME: Joi.string().default('guest').description('Rabbitmq username'),
@@ -86,6 +88,10 @@ export default {
     password: envVars.RABBITMQ_PASSWORD,
     exchange: envVars.RABBITMQ_EXCHANGE
   },
+  redis: {
+    host: envVars.REDIS_HOST,
+    port: envVars.REDIS_PORT
+  },
   postgres: {
     host: envVars.POSTGRES_HOST,
     port: envVars.POSTGRES_PORT,
@@ -101,7 +107,7 @@ export default {
   },
   jwt: {
     secret: envVars.JWT_SECRET,
-    accessExpirationMinutes: envVars.JWT_ACCESS_EXPIRATION_MINUTES,
+    accessExpirationHours: envVars.JWT_ACCESS_EXPIRATION_HOURS,
     refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS
   },
   retry: {

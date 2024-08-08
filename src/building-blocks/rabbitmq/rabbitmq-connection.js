@@ -76,8 +76,11 @@ let RabbitmqConnection = class RabbitmqConnection {
                     minTimeout: configs_1.default.retry.minTimeout,
                     maxTimeout: configs_1.default.retry.maxTimeout
                 });
+                connection.on('connect', () => {
+                    common_1.Logger.log('Connected to Rabbitmq');
+                });
                 connection.on('error', async (error) => {
-                    common_1.Logger.error(`Error occurred on connection: ${error}`);
+                    common_1.Logger.error(`Error occurred on connection rabbitmq: ${error}`);
                     await this.closeConnection();
                     await this.createConnection();
                 });

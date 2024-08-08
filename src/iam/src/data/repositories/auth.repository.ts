@@ -30,7 +30,7 @@ export class AuthRepository implements IAuthRepository {
   ) {}
 
   async createToken(token: Token): Promise<void> {
-    await this.tokenRepository.save(token);
+    await this.tokenRepository.upsert(token, ['userId']);
   }
 
   async findToken(token: string, tokenType: TokenType): Promise<Token> {

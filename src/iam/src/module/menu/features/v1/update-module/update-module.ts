@@ -23,6 +23,7 @@ import { IModuleRepository } from '../../../../../data/repositories/module.repos
 import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
 import { Modules } from '../../../../../module/menu/entities/module.entity';
 import mapper from '../../../../../module/menu/mapping';
+import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 
 // =================================== Caommand ==========================================
 export class UpdateModule {
@@ -68,6 +69,7 @@ export class UpdateModuleController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Put('update/:id')
+  @AdminAuth()
   async createModule(
     @Param('id') id: string,
     @Body() request: UpdateModuleRequestDto,
@@ -99,7 +101,7 @@ export class UpdateModuleHandler implements ICommandHandler<UpdateModule> {
 
   async execute(command: UpdateModule): Promise<ModuleDto> {
     const { id, name, parentId, desc } = command;
-    const userId = HttpContext.headers['userId'].toString();
+    const userId = HttpContext.request.user['id'].toString() ?? '99';
 
     const existModule = await this.moduleRepository.findById(id);
     if (!existModule) {

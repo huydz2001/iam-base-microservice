@@ -36,7 +36,6 @@ exports.RabbitmqModule = RabbitmqModule = RabbitmqModule_1 = __decorate([
     (0, common_1.Module)({
         imports: [open_telemetry_module_1.OpenTelemetryModule.forRoot()],
         providers: [
-            rabbitmq_publisher_1.RabbitmqPublisher,
             {
                 provide: 'IRabbitmqConnection',
                 useClass: rabbitmq_connection_1.RabbitmqConnection

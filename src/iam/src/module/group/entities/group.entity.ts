@@ -1,12 +1,5 @@
 import { EntityAuditBase } from 'building-blocks/databases/abstracts/entity_audit_base.abstract';
-import {
-  Column,
-  Entity,
-  Index,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
-} from 'typeorm';
+import { Column, Entity, Index, JoinTable, ManyToMany } from 'typeorm';
 import { Permission } from '../../permission/entities/permission.entity';
 import { User } from '../../user/entities/user.entity';
 @Entity({ name: 'groups' })
@@ -26,7 +19,12 @@ export class Group extends EntityAuditBase<string> {
   })
   permissions: Permission[];
 
-  @OneToMany(() => User, (u) => u.group, { nullable: true })
+  @ManyToMany(() => User, (u) => u.groups)
+  @JoinTable({
+    name: 'groups_users',
+    joinColumn: { name: 'group_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
   users: User[];
 
   constructor(item: Partial<Group>) {

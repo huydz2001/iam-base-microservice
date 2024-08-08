@@ -8,7 +8,6 @@ import { RabbitmqConsumer } from './rabitmq-subscriber';
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
   providers: [
-    RabbitmqPublisher,
     {
       provide: 'IRabbitmqConnection',
       useClass: RabbitmqConnection

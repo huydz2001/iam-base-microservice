@@ -11,12 +11,15 @@ import {
   CreatePermissionHandler,
 } from './features/v1/create-permission/create-permission';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
+import { Group } from '../group/entities/group.entity';
+import { User } from '../user/entities/user.entity';
+import { Profile } from '../user/entities/profile.entity';
 
 @Module({
   imports: [
     CqrsModule,
     RabbitmqModule.forRoot(),
-    TypeOrmModule.forFeature([Permission, Modules]),
+    TypeOrmModule.forFeature([Permission, Modules, Group, User, Profile]),
   ],
   exports: [],
   providers: [

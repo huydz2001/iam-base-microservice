@@ -22,6 +22,7 @@ import { IModuleRepository } from '../../../../../data/repositories/module.repos
 import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
 import { Modules } from '../../../../../module/menu/entities/module.entity';
 import mapper from '../../../../../module/menu/mapping';
+import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 
 // =================================== Caommand ==========================================
 export class CreateModule {
@@ -66,6 +67,7 @@ export class CreateModuleController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('create')
+  @AdminAuth()
   async createModule(
     @Body() request: CreateModuleRequestDto,
     @Res() res: Response,
@@ -97,7 +99,7 @@ export class CreateModuleHandler implements ICommandHandler<CreateModule> {
 
   async execute(command: CreateModule): Promise<ModuleDto> {
     const { name, parentId, desc } = command;
-    const userId = HttpContext.headers['userId']?.toString() ?? '99';
+    const userId = HttpContext.request.user['id'].toString() ?? '99';
 
     let parentModule: Modules;
 

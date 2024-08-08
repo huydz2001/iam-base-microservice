@@ -99,7 +99,7 @@ export class ErrorHandlersFilter implements ExceptionFilter {
       statusCode = HttpStatus.CONFLICT;
     }
     //  ValidationError
-    else if (err instanceof ValidationError) {
+    else if (err.constructor.name == 'ValidationError') {
       problem = this.createProblemDocument(
         ValidationError.name,
         err.message,

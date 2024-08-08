@@ -16,7 +16,7 @@ export interface IUserRepository {
     searchTerm?: string,
   ): Promise<[User[], number]>;
 
-  findUserByListId(ids: string[]): Promise<User[]>;
+  findUserByIds(ids: string[]): Promise<User[]>;
 
   findUserByName(name: string): Promise<User>;
 
@@ -45,15 +45,17 @@ export class UserRepository implements IUserRepository {
       },
       relations: {
         profile: true,
+        permissions: true,
       },
     });
   }
 
-  async findUserByListId(ids: string[]): Promise<User[]> {
+  async findUserByIds(ids: string[]): Promise<User[]> {
     return await this.userRepository.find({
       where: { id: In(ids) },
       relations: {
         profile: true,
+        permissions: true,
       },
     });
   }
@@ -100,7 +102,7 @@ export class UserRepository implements IUserRepository {
       relations: {
         profile: true,
       },
-      select: ['id', 'hashPass'],
+      select: ['id', 'hashPass', 'role'],
     });
   }
 

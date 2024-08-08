@@ -54,7 +54,7 @@ let ErrorHandlersFilter = ErrorHandlersFilter_1 = class ErrorHandlersFilter {
             problem = this.createProblemDocument(common_1.HttpException.name, err.message, err.stack, err.getStatus());
             statusCode = common_1.HttpStatus.CONFLICT;
         }
-        else if (err instanceof joi_1.ValidationError) {
+        else if (err.constructor.name == 'ValidationError') {
             problem = this.createProblemDocument(joi_1.ValidationError.name, err.message, err.stack, common_1.HttpStatus.BAD_REQUEST);
             statusCode = common_1.HttpStatus.BAD_REQUEST;
         }

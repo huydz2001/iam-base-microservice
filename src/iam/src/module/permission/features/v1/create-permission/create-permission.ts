@@ -25,6 +25,7 @@ import { PermissionDto } from '../../../../../module/permission/dtos/permission.
 import mapper from '../../../../../module/permission/mapping';
 import { TYPE_ACTION } from '../../../../permission/enums/type-action.enum';
 import { Permission } from '../../../entities/permission.entity';
+import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 
 // ==================================================command====================================================
 export class CreatePermission {
@@ -65,7 +66,7 @@ export class CreatePermissionController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('create')
-  //   @UseGuards(JwtGuard)
+  @AdminAuth()
   public async createPermission(
     @Body() request: CreatePermissionRequestDto,
     @Res() res: Response,
@@ -115,7 +116,7 @@ export class CreatePermissionHandler
       desc: desc,
     });
 
-    const userId = HttpContext.headers['userId']?.toString() ?? '99';
+    const userId = HttpContext.request?.user?.['id'] ?? '99';
 
     permission = this.configData.createData(permission, userId);
     permission.module = module;
