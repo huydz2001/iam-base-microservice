@@ -15,20 +15,8 @@ export class Mapper extends TypeMapper {
         (dest) => dest.id,
       )
       .map(
-        (src) => src.profile,
-        (dest) => dest.profile,
-      )
-      .map(
         (src) => src.isEmailVerified,
         (dest) => dest.isEmailVerified,
-      )
-      .map(
-        (src) => src.groups,
-        (dest) => dest.groups,
-      )
-      .map(
-        (src) => src.token,
-        (dest) => dest.token,
       )
       .map(
         (src) => src.role,
@@ -37,10 +25,6 @@ export class Mapper extends TypeMapper {
       .map(
         (src) => src.email,
         (dest) => dest.email,
-      )
-      .map(
-        (src) => src.permissions,
-        (dest) => dest.permissions,
       )
       .map(
         (src) => src.phone,

@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { Modules } from '../../module/menu/entities/module.entity';
 
 export interface IModuleRepository {
@@ -7,13 +7,9 @@ export interface IModuleRepository {
 
   findById(id: string): Promise<Modules>;
 
-  findModules(
-    page: number,
-    pageSize: number,
-    orderBy: string,
-    order: 'ASC' | 'DESC',
-    searchTerm?: string,
-  ): Promise<[Modules[], number]>;
+  findByPermissionsIds(permisisonId: string[]): Promise<Modules[]>;
+
+  findModules(): Promise<Modules[]>;
 
   updateModule(module: Modules): Promise<void>;
 
@@ -26,16 +22,50 @@ export class ModuleRepository implements IModuleRepository {
     private readonly moduleRepository: Repository<Modules>,
   ) {}
 
-  async findModules(
-    page: number,
-    pageSize: number,
-    orderBy: string,
-    order: 'ASC' | 'DESC',
-    searchTerm?: string,
-  ): Promise<[Modules[], number]> {
-    const skip = (page - 1) * pageSize;
-    const take = pageSize;
+  async findByPermissionsIds(ids: string[]): Promise<Modules[]> {
+    const modules = await this.moduleRepository.find({
+      where: {
+        parentId: IsNull(),
+      },
+      select: {
+        id: true,
+        name: true,
+        parentId: true,
+      },
+    });
 
+    await Promise.all(
+      modules.map(async (item) => {
+        item.subModules = await this.moduleRepository.find({
+          where: {
+            parentId: item.id,
+            permisions: {
+              id: In(ids),
+            },
+          },
+          relations: {
+            permisions: true,
+          },
+          select: {
+            id: true,
+            name: true,
+            desc: true,
+            parentId: true,
+            permisions: {
+              id: true,
+              type: true,
+              desc: true,
+              moduleId: true,
+            },
+          },
+        });
+      }),
+    );
+
+    return modules;
+  }
+
+  async findModules(): Promise<Modules[]> {
     const modules = await this.moduleRepository.find({
       where: {
         parentId: IsNull(),
@@ -71,7 +101,7 @@ export class ModuleRepository implements IModuleRepository {
       }),
     );
 
-    return [modules, modules.length];
+    return modules;
   }
 
   async createModule(module: Modules): Promise<Modules> {
@@ -81,6 +111,7 @@ export class ModuleRepository implements IModuleRepository {
   async findById(id: string): Promise<Modules> {
     return await this.moduleRepository.findOne({
       where: { id: id, isDeleted: false },
+      relations: { permisions: true },
     });
   }
 

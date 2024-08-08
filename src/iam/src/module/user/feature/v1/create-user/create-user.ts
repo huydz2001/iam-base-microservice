@@ -28,6 +28,7 @@ import { User } from '../../../entities/user.entity';
 import { Role } from '../../../enums/role.enum';
 import mapper from '../../../mapping';
 import { QueryRunner, DataSource } from 'typeorm';
+import { TYPE_ACTION } from '../../../../../module/permission/enums/type-action.enum';
 
 export class CreateUser {
   email: string;
@@ -148,8 +149,12 @@ export class CreateUserHandler implements ICommandHandler<CreateUser> {
       groups = await this.groupRepository.findGroupByIds(groupIds);
     }
 
+    permissions = await this.permissionRepository.findByType(TYPE_ACTION.VIEW);
+
     if (permissionIds.length > 0) {
-      permissions = await this.permissionRepository.findByIds(permissionIds);
+      const permissionsFilter =
+        await this.permissionRepository.findByIds(permissionIds);
+      permissions = [...new Set([...permissions, ...permissionsFilter])];
     }
 
     await queryRunner.startTransaction();
@@ -195,9 +200,9 @@ export class CreateUserHandler implements ICommandHandler<CreateUser> {
       // Commit transaction
       await queryRunner.commitTransaction();
 
-      await this.rabbitmqPublisher.publishMessage(new UserCreated(userEntity));
-
       const result = mapper.map<User, UserDto>(userEntity, new UserDto());
+
+      await this.rabbitmqPublisher.publishMessage(new UserCreated(result));
 
       return result;
     } catch (error) {

@@ -3,7 +3,6 @@ import { IEvent } from '@nestjs/cqrs';
 export class UserCreated implements IEvent {
   id: string;
   email: string;
-  password: string;
   name: string;
   permissionIds: string[];
   groupIds: string[];
@@ -37,7 +36,6 @@ export class UserDeleted implements IEvent {
 export class UserUpdated implements IEvent {
   id: string;
   email: string;
-  password: string;
   name: string;
   permissionIds: string[];
   groupIds: string[];

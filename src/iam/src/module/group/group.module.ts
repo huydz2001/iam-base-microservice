@@ -24,6 +24,10 @@ import {
   DeleteGroupByIdController,
   DeleteGroupByIdHandler,
 } from './features/v1/delete-group-by-id/delete-group-by-id';
+import {
+  GetGroupByIdController,
+  GetGroupByIdHandler,
+} from './features/v1/get-group-by-id/get-group-by-id';
 
 @Module({
   imports: [
@@ -36,6 +40,7 @@ import {
     CreateGroupHandler,
     UpdateGroupHandler,
     DeleteGroupByIdHandler,
+    GetGroupByIdHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',
@@ -54,6 +59,7 @@ import {
     CreateGroupController,
     UpdateGroupController,
     DeleteGroupByIdController,
+    GetGroupByIdController,
   ],
 })
 export class GroupModule {}

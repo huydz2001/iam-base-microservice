@@ -1,6 +1,7 @@
-import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
 import { Permission } from '../../module/permission/entities/permission.entity';
+import { TYPE_ACTION } from '../../module/permission/enums/type-action.enum';
 
 export interface IPermissionRepository {
   createPermission(permission: Permission): Promise<Permission>;
@@ -9,9 +10,13 @@ export interface IPermissionRepository {
 
   findByGroupId(id: string): Promise<Permission[]>;
 
+  findByGroupIds(ids: string[]): Promise<Permission[]>;
+
   findByIds(ids: string[]): Promise<Permission[]>;
 
   findAll(): Promise<Permission[]>;
+
+  findByType(type: TYPE_ACTION): Promise<Permission[]>;
 
   updatePermission(permission: Permission): Promise<void>;
 
@@ -23,6 +28,38 @@ export class PermissionRepository implements IPermissionRepository {
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
   ) {}
+
+  async findByType(type: TYPE_ACTION): Promise<Permission[]> {
+    return await this.permissionRepository.find({
+      where: {
+        isDeleted: false,
+        type: type,
+      },
+      relations: {
+        groups: true,
+        users: true,
+        module: true,
+      },
+    });
+  }
+
+  async findByGroupIds(ids: string[]): Promise<Permission[]> {
+    return await this.permissionRepository.find({
+      where: {
+        groups: {
+          id: In(ids),
+        },
+        isDeleted: false,
+      },
+      relations: {
+        groups: true,
+      },
+      select: {
+        id: true,
+        moduleId: true,
+      },
+    });
+  }
 
   async findByUserId(id: string): Promise<Permission[]> {
     return await this.permissionRepository.find({

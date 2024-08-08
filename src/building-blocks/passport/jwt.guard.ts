@@ -1,10 +1,11 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
+import configs from '../configs/configs';
+import jwt from 'jsonwebtoken';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
-  constructor(private readonly jwtService: JwtService) {
+  constructor() {
     super();
   }
 
@@ -13,7 +14,7 @@ export class JwtGuard extends AuthGuard('jwt') {
     const authorization = request.headers?.['authorization'];
     if (authorization) {
       const token = authorization.split(' ')[1];
-      const payload: any = this.jwtService.decode(token);
+      const payload: any = jwt.verify(token, configs.jwt.secret);
 
       if (!payload) {
         throw new UnauthorizedException('Access denied');

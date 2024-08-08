@@ -9,6 +9,8 @@ export interface IGroupRepository {
 
   findGroupByIds(ids: string[]): Promise<Group[]>;
 
+  findGroupsByUserId(id: string): Promise<Group[]>;
+
   findGroupByName(name: string): Promise<Group>;
 
   updateGroup(group: Group): Promise<void>;
@@ -22,12 +24,47 @@ export class GroupRepository implements IGroupRepository {
     private readonly groupRepository: Repository<Group>,
   ) {}
 
+  async findGroupsByUserId(id: string): Promise<Group[]> {
+    return await this.groupRepository.find({
+      where: {
+        isDeleted: false,
+        users: {
+          id: id,
+        },
+      },
+      relations: { users: true },
+    });
+  }
+
   async findGroupById(id: string): Promise<Group> {
     return await this.groupRepository.findOne({
       where: { id: id },
       relations: {
         users: true,
-        permissions: true,
+        permissions: {
+          module: true,
+        },
+      },
+      select: {
+        users: {
+          id: true,
+          email: true,
+          phone: true,
+          role: true,
+          isEmailVerified: true,
+        },
+        permissions: {
+          id: true,
+          type: true,
+          desc: true,
+          moduleId: true,
+          module: {
+            id: true,
+            name: true,
+            desc: true,
+            parentId: true,
+          },
+        },
       },
     });
   }
