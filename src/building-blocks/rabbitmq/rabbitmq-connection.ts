@@ -46,8 +46,12 @@ export class RabbitmqConnection implements OnModuleInit, IRabbitmqConnection {
           }
         );
 
+        connection.on('connect', () => {
+          Logger.log('Connected to Rabbitmq');
+        });
+
         connection.on('error', async (error): Promise<void> => {
-          Logger.error(`Error occurred on connection: ${error}`);
+          Logger.error(`Error occurred on connection rabbitmq: ${error}`);
           await this.closeConnection();
           await this.createConnection();
         });
@@ -57,6 +61,7 @@ export class RabbitmqConnection implements OnModuleInit, IRabbitmqConnection {
     }
     return connection;
   }
+
   async getChannel(): Promise<amqp.Channel> {
     try {
       if (!connection) {

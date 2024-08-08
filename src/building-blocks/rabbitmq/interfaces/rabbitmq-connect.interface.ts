@@ -1,4 +1,4 @@
-import { RabbitmqOptions } from 'rabbitmq/rabbitmq-connection';
+import { RabbitmqOptions } from '../rabbitmq-connection';
 import * as amqp from 'amqplib';
 
 export interface IRabbitmqConnection {
