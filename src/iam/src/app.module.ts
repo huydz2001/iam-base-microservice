@@ -22,6 +22,7 @@ import { AuthModule } from './module/auth/auth.module';
 import { UserModule } from './module/user/user.module';
 import { JwtStrategy } from 'building-blocks/passport/jwt.strategy';
 import { AdminGuard } from 'building-blocks/passport/auth.guard';
+import { RabbitMQModule, AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 
 @Module({
   imports: [
@@ -34,6 +35,13 @@ import { AdminGuard } from 'building-blocks/passport/auth.guard';
     JwtModule.register({
       secret: configs.jwt.secret,
       signOptions: { expiresIn: configs.jwt.refreshExpirationDays },
+    }),
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        { name: 'iam', type: 'topic', options: { autoDelete: true } },
+      ],
+      uri: configs.rabbitmq.uri,
+      connectionInitOptions: { wait: false },
     }),
     OpenTelemetryModule.forRoot(),
     RedisModule.forRoot(),
@@ -53,7 +61,7 @@ import { AdminGuard } from 'building-blocks/passport/auth.guard';
       useClass: ErrorHandlersFilter,
     },
   ],
-  exports: [JwtModule],
+  exports: [JwtModule, RabbitMQModule],
 })
 export class AppModule implements OnApplicationBootstrap, NestModule {
   // constructor(private readonly dataSeeder: DataSeeder) {}

@@ -18,12 +18,19 @@ import { Group } from '../group/entities/group.entity';
 import { UserRepository } from '../../data/repositories/user.repository';
 import { Profile } from './entities/profile.entity';
 import { ProfileRepository } from '../../data/repositories/profile.repository';
-
+import { AmqpConnection, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import configs from 'building-blocks/configs/configs';
 @Module({
   imports: [
     CqrsModule,
-    RabbitmqModule.forRoot(),
     TypeOrmModule.forFeature([Permission, User, Group, Modules, Profile]),
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        { name: 'iam', type: 'topic', options: { autoDelete: true } },
+      ],
+      uri: configs.rabbitmq.uri,
+      connectionInitOptions: { wait: false },
+    }),
   ],
   exports: [],
   providers: [

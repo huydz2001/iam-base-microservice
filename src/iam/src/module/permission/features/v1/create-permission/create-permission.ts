@@ -16,16 +16,15 @@ import {
 } from '@nestjs/swagger';
 import { HttpContext } from 'building-blocks/context/context';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
-import { IRabbitmqPublisher } from 'building-blocks/rabbitmq/interfaces/rabbitmq-publisher.interface';
 import { IsOptional } from 'class-validator';
 import { Response } from 'express';
+import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { IModuleRepository } from '../../../../../data/repositories/module.repository';
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
 import { PermissionDto } from '../../../../../module/permission/dtos/permission.dto';
 import mapper from '../../../../../module/permission/mapping';
 import { TYPE_ACTION } from '../../../../permission/enums/type-action.enum';
 import { Permission } from '../../../entities/permission.entity';
-import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 
 // ==================================================command====================================================
 export class CreatePermission {
@@ -93,8 +92,6 @@ export class CreatePermissionHandler
   implements ICommandHandler<CreatePermission>
 {
   constructor(
-    @Inject('IRabbitmqPublisher')
-    private readonly rabbitmqPublisher: IRabbitmqPublisher,
     @Inject('IPermissionRepository')
     private readonly permissionReposiotry: IPermissionRepository,
     @Inject('IModuleRepository')

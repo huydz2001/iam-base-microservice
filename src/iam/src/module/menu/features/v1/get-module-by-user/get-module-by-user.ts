@@ -70,11 +70,7 @@ export class GetModulesByUserHandler
       });
     }
 
-    console.log(permissionIds);
-
     permissionIds = [...new Set(permissionIds)];
-
-    console.log(permissionIds);
 
     const modules = this.moduleRepository.findByPermissionsIds(permissionIds);
 

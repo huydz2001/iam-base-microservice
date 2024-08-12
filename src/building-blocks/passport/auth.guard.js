@@ -31,7 +31,6 @@ let AdminGuard = class AdminGuard extends (0, passport_1.AuthGuard)('jwt') {
         }
         try {
             const payload = jsonwebtoken_1.default.verify(token, configs_1.default.jwt.secret);
-            console.log(payload);
             request.user = payload;
             if ((payload === null || payload === void 0 ? void 0 : payload['role']) !== identity_constract_1.Role.ADMIN) {
                 throw new common_1.UnauthorizedException('Access dined!');

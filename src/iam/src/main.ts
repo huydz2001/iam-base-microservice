@@ -8,6 +8,7 @@ import { ErrorHandlersFilter } from 'building-blocks/filters/error-handlers.filt
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { LoggerInterceptor } from 'building-blocks/interceptors/logger.interceptor';
 import { ResponseInterceptor } from 'building-blocks/interceptors/response.interceptor';
+import { Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,6 +30,19 @@ async function bootstrap() {
     new ResponseInterceptor(),
   );
 
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [configs.rabbitmq.uri],
+      queue: 'iam_queue',
+      queueOptions: {
+        durable: false,
+      },
+    },
+  });
+
+  await app.startAllMicroservices();
+
   const config = new DocumentBuilder()
     .setTitle(`${configs.serviceName}`)
     .setDescription(`${configs.serviceName} api description`)
@@ -47,7 +61,6 @@ async function bootstrap() {
     }
     return next();
   });
-
   PrometheusMetrics.registerMetricsEndpoint(app);
 
   app.useGlobalFilters(new ErrorHandlersFilter());

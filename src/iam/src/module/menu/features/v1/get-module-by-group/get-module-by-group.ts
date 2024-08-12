@@ -52,20 +52,9 @@ export class GetModulesByGroupHandler
     const { id } = query;
     const permissions = await this.permissionRepository.findByGroupId(id);
 
-    console.log(permissions);
-
-    let moduleIds = permissions.map((item) => {
-      return item.moduleId;
-    });
-
     const permissionIds = permissions.map((item) => {
       return item.id;
     });
-
-    moduleIds = [...new Set(moduleIds)];
-    console.log(moduleIds);
-    console.log(permissionIds);
-
     const modules = this.moduleRepository.findByPermissionsIds(permissionIds);
 
     return modules;

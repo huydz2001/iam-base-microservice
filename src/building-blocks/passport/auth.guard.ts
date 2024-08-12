@@ -20,7 +20,6 @@ export class AdminGuard extends AuthGuard('jwt') {
 
     try {
       const payload = jwt.verify(token, configs.jwt.secret);
-      console.log(payload);
       request.user = payload;
       if (payload?.['role'] !== Role.ADMIN) {
         throw new UnauthorizedException('Access dined!');

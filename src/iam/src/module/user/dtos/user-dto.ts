@@ -3,6 +3,7 @@ import { Role } from '../enums/role.enum';
 export class UserDto {
   id: string;
   email: string;
+  name: string;
   phone: string;
   isEmailVerified: boolean;
   role: Role;

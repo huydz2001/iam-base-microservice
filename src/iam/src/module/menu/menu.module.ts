@@ -28,11 +28,7 @@ import {
 } from './features/v1/get-module-by-user/get-module-by-user';
 
 @Module({
-  imports: [
-    CqrsModule,
-    RabbitmqModule.forRoot(),
-    TypeOrmModule.forFeature([Permission, Modules, Group]),
-  ],
+  imports: [CqrsModule, TypeOrmModule.forFeature([Permission, Modules, Group])],
   exports: [],
   providers: [
     CreateModuleHandler,

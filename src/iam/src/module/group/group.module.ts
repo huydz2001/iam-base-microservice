@@ -1,25 +1,20 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitmqModule } from 'building-blocks/rabbitmq/rabbitmq.module';
 import { PermissionRepository } from '../../data/repositories/permission.repository';
 
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { GroupRepository } from '../../data/repositories/group.repository';
 import { UserRepository } from '../../data/repositories/user.repository';
 import { Group } from '../group/entities/group.entity';
+import { Modules } from '../menu/entities/module.entity';
 import { Permission } from '../permission/entities/permission.entity';
+import { Profile } from '../user/entities/profile.entity';
 import { User } from '../user/entities/user.entity';
 import {
   CreateGroupController,
   CreateGroupHandler,
 } from './features/v1/create-group/create-group';
-import { Profile } from '../user/entities/profile.entity';
-import { Modules } from '../menu/entities/module.entity';
-import {
-  UpdateGroupController,
-  UpdateGroupHandler,
-} from './features/v1/update-group/update-group';
 import {
   DeleteGroupByIdController,
   DeleteGroupByIdHandler,
@@ -28,11 +23,14 @@ import {
   GetGroupByIdController,
   GetGroupByIdHandler,
 } from './features/v1/get-group-by-id/get-group-by-id';
+import {
+  UpdateGroupController,
+  UpdateGroupHandler,
+} from './features/v1/update-group/update-group';
 
 @Module({
   imports: [
     CqrsModule,
-    RabbitmqModule.forRoot(),
     TypeOrmModule.forFeature([Permission, Group, User, Profile, Modules]),
   ],
   exports: [],

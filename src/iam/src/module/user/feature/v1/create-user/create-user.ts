@@ -9,26 +9,27 @@ import {
 } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
-import { UserCreated } from 'building-blocks/constracts/identity-constract';
 import { HttpContext } from 'building-blocks/context/context';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
-import { IRabbitmqPublisher } from 'building-blocks/rabbitmq/interfaces/rabbitmq-publisher.interface';
 import { encryptPassword } from 'building-blocks/utils/encryption';
 import { Response } from 'express';
 import Joi from 'joi';
+import { DataSource, QueryRunner } from 'typeorm';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
 import { IProfileRepository } from '../../../../../data/repositories/profile.repository';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 import { Group } from '../../../../../module/group/entities/group.entity';
 import { Permission } from '../../../../../module/permission/entities/permission.entity';
+import { TYPE_ACTION } from '../../../../../module/permission/enums/type-action.enum';
 import { Profile } from '../../../../../module/user/entities/profile.entity';
 import { UserDto } from '../../../dtos/user-dto';
 import { User } from '../../../entities/user.entity';
 import { Role } from '../../../enums/role.enum';
 import mapper from '../../../mapping';
-import { QueryRunner, DataSource } from 'typeorm';
-import { TYPE_ACTION } from '../../../../../module/permission/enums/type-action.enum';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import configs from 'building-blocks/configs/configs';
+import { RoutingKey } from './../../../../../../../building-blocks/constants/rabbitmq.constant';
 
 export class CreateUser {
   email: string;
@@ -106,8 +107,6 @@ export class CreateUserController {
 @CommandHandler(CreateUser)
 export class CreateUserHandler implements ICommandHandler<CreateUser> {
   constructor(
-    @Inject('IRabbitmqPublisher')
-    private readonly rabbitmqPublisher: IRabbitmqPublisher,
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
     @Inject('IPermissionRepository')
     private readonly permissionRepository: IPermissionRepository,
@@ -117,6 +116,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUser> {
     private readonly groupRepository: IGroupRepository,
     private readonly configData: ConfigData,
     private readonly dataSource: DataSource,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
   async execute(command: CreateUser): Promise<UserDto> {
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
@@ -140,9 +140,13 @@ export class CreateUserHandler implements ICommandHandler<CreateUser> {
     await createUserValidations.validateAsync(command);
 
     const existUser = await this.userRepository.findUserByEmail(email);
-
     if (existUser) {
-      throw new ConflictException('Email already taken');
+      throw new ConflictException('Email has already taken');
+    }
+
+    const existPhone = await this.userRepository.findUserByPhone(email);
+    if (existPhone) {
+      throw new ConflictException('Phone number has already taken');
     }
 
     if (groupIds.length > 0) {
@@ -201,8 +205,16 @@ export class CreateUserHandler implements ICommandHandler<CreateUser> {
       await queryRunner.commitTransaction();
 
       const result = mapper.map<User, UserDto>(userEntity, new UserDto());
+      result.name = newProfileEntity.fullName;
 
-      await this.rabbitmqPublisher.publishMessage(new UserCreated(result));
+      const otp = await this.amqpConnection.request<any>({
+        exchange: configs.rabbitmq.exchange,
+        routingKey: RoutingKey.AUTH.REGISTER,
+        payload: result,
+        timeout: 10000,
+      });
+
+      console.log(otp);
 
       return result;
     } catch (error) {

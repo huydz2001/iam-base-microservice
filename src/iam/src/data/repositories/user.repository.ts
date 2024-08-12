@@ -22,6 +22,8 @@ export interface IUserRepository {
 
   findUserByEmail(email: string): Promise<User>;
 
+  findUserByPhone(phone: string): Promise<User>;
+
   findUserById(id: string): Promise<User>;
 
   getAllUsers(): Promise<User[]>;
@@ -35,6 +37,18 @@ export class UserRepository implements IUserRepository {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+
+  async findUserByPhone(phone: string): Promise<User> {
+    return await this.userRepository.findOne({
+      where: {
+        phone: phone,
+      },
+      relations: {
+        profile: true,
+      },
+      select: ['id', 'hashPass', 'role'],
+    });
+  }
 
   async findUserByName(name: string): Promise<User> {
     return await this.userRepository.findOne({

@@ -1,0 +1,10 @@
+export const RoutingKey = {
+  AUTH: {
+    LOGIN: 'LOGIN',
+    LOGIN_GUEST: 'LOGIN_GUEST',
+    LOGOUT: 'LOGOUT',
+    REGISTER: 'REGISTER',
+    REFRESH_TOKEN: 'REFRESH_TOKEN',
+    CHECK_TOKEN: 'CHECK_TOKEN'
+  }
+};
