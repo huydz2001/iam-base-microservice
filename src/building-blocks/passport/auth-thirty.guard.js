@@ -36,7 +36,6 @@ let AdminThirtyGuard = AdminThirtyGuard_1 = class AdminThirtyGuard extends (0, p
             const token = authorization.split(' ')[1];
             try {
                 const resp = await this.checkJwtHandler.checkAdminGuard({ accessToken: token });
-                this.logger.debug(resp);
                 if (!resp) {
                     throw new common_1.UnauthorizedException('Access denied: Invalid token payload');
                 }

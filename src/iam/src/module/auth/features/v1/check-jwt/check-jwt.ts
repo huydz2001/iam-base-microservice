@@ -35,8 +35,6 @@ export class CheckTokenHandler {
         `accessToken:${decodeToken['id']}`,
       );
 
-      this.logger.debug(exsitToken);
-
       if (!exsitToken) {
         throw new UnauthorizedException('Invalid Token');
       }
@@ -67,8 +65,6 @@ export class CheckTokenHandler {
       const exsitToken = await this.redisCacheService.getCache(
         `accessToken:${decodeToken['id']}`,
       );
-
-      this.logger.debug(decodeToken);
 
       if (!exsitToken) {
         throw new UnauthorizedException('Invalid Token');

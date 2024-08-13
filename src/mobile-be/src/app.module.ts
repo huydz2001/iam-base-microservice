@@ -19,6 +19,10 @@ import { JwtStrategy } from 'building-blocks/passport/jwt.strategy';
 import { RedisModule } from 'building-blocks/redis/redis.module';
 import { AuthModule } from './module/auth/auth.module';
 import { UserModule } from './module/user/user.module';
+import { AdminThirtyGuard } from 'building-blocks/passport/auth-thirty.guard';
+import { LoggerMiddleware } from 'building-blocks/loggers/logger.middleware';
+import helmet from 'helmet';
+import compression from 'compression';
 
 @Module({
   imports: [
@@ -54,6 +58,7 @@ import { UserModule } from './module/user/user.module';
     AdminGuard,
     JwtStrategy,
     JwtThirtyGuard,
+    AdminThirtyGuard,
     {
       provide: APP_FILTER,
       useClass: ErrorHandlersFilter,
@@ -65,7 +70,10 @@ export class AppModule implements OnApplicationBootstrap, NestModule {
   // constructor(private readonly dataSeeder: DataSeeder) {}
 
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(helmet()).forRoutes('*');
+    consumer.apply(compression()).forRoutes('*');
     consumer.apply(HttpContextMiddleware).forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 
   async onApplicationBootstrap(): Promise<void> {

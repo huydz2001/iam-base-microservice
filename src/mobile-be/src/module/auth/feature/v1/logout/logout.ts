@@ -12,10 +12,7 @@ import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { IsString } from 'class-validator';
-import {
-  AdminAuth,
-  Auth,
-} from '../../../../../common/decorator/auth.decorator';
+import { Auth } from '../../../../../common/decorator/auth.decorator';
 
 export class Logout {
   accessToken: string;
@@ -45,7 +42,7 @@ export class LogoutController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('logout')
-  @AdminAuth()
+  @Auth()
   public async logout(@Body() request: LogoutRequestDto) {
     const result = await this.commandBus.execute(new Logout(request));
 
