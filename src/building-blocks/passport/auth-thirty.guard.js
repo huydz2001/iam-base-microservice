@@ -42,8 +42,8 @@ let AdminThirtyGuard = AdminThirtyGuard_1 = class AdminThirtyGuard extends (0, p
                 return super.canActivate(context);
             }
             catch (err) {
-                this.logger.error(err.message);
-                throw new common_1.UnauthorizedException(`Access denied: ${err.message}`);
+                this.logger.error(err);
+                throw err;
             }
         }
         return super.canActivate(context);

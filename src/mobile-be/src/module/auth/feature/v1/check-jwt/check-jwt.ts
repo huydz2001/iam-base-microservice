@@ -1,8 +1,12 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { JwtDto } from 'building-blocks/passport/jwt-thirty.guard';
+import {
+  handleRpcError,
+  ReponseDto,
+} from 'building-blocks/utils/handle-error-rpc';
 
 @Injectable()
 export class CheckJwtHandler {
@@ -17,12 +21,16 @@ export class CheckJwtHandler {
         payload: command,
         timeout: 10000,
       });
-      if (resp?.data?.messageResp) {
-        throw new BadRequestException(resp.data.messageResp);
-      }
 
-      this.logger.debug(resp);
-      return resp?.data ?? null;
+      if (resp?.data?.message !== undefined) {
+        const response = new ReponseDto({
+          name: resp?.data.name,
+          message: resp?.data.message,
+        });
+        handleRpcError(response);
+      } else {
+        return resp?.data ?? null;
+      }
     } catch (error) {
       this.logger.error(error.message);
       throw error;
@@ -37,12 +45,16 @@ export class CheckJwtHandler {
         payload: command,
         timeout: 10000,
       });
-      if (resp?.data?.messageResp) {
-        throw new BadRequestException(resp.data.messageResp);
-      }
 
-      this.logger.debug(resp);
-      return resp?.data ?? null;
+      if (resp?.data?.message !== undefined) {
+        const response = new ReponseDto({
+          name: resp?.data.name,
+          message: resp?.data.message,
+        });
+        handleRpcError(response);
+      } else {
+        return resp?.data ?? null;
+      }
     } catch (error) {
       this.logger.error(error.message);
       throw error;

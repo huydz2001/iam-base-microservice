@@ -1,4 +1,9 @@
-import { Inject, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import configs from 'building-blocks/configs/configs';
@@ -25,26 +30,12 @@ export class CheckTokenHandler {
   })
   private async checkValidateJWT(payload: JwtDto) {
     try {
-      const decodeToken = jwt.verify(payload.accessToken, configs.jwt.secret);
+      const decodeToken = this.validateToken(payload.accessToken);
 
-      if (!decodeToken) {
-        throw new UnauthorizedException('Invalid Token');
-      }
-
-      const exsitToken = await this.redisCacheService.getCache(
-        `accessToken:${decodeToken['id']}`,
-      );
-
-      if (!exsitToken) {
-        throw new UnauthorizedException('Invalid Token');
-      }
-
-      return exsitToken;
+      return decodeToken;
     } catch (err) {
       this.logger.error(err.message);
-      return {
-        messageResp: err.message,
-      };
+      return err;
     }
   }
 
@@ -56,7 +47,22 @@ export class CheckTokenHandler {
   })
   private async checkValidateAdmin(payload: JwtDto) {
     try {
-      const decodeToken = jwt.verify(payload.accessToken, configs.jwt.secret);
+      const decodeToken = await this.validateToken(payload.accessToken);
+
+      if (decodeToken['role'] != Role.ADMIN) {
+        throw new ForbiddenException('You have no permission');
+      }
+
+      return decodeToken;
+    } catch (err) {
+      this.logger.error(err.message);
+      return err;
+    }
+  }
+
+  private async validateToken(accessToken: string) {
+    try {
+      const decodeToken = jwt.verify(accessToken, configs.jwt.secret);
 
       if (!decodeToken) {
         throw new UnauthorizedException('Invalid Token');
@@ -70,16 +76,10 @@ export class CheckTokenHandler {
         throw new UnauthorizedException('Invalid Token');
       }
 
-      if (decodeToken['role'] != Role.ADMIN) {
-        throw new UnauthorizedException('You have no permission');
-      }
-
-      return exsitToken;
+      return decodeToken;
     } catch (err) {
       this.logger.error(err.message);
-      return {
-        messageResp: err.message,
-      };
+      return err;
     }
   }
 }

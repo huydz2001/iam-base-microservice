@@ -35,7 +35,7 @@ export class JwtThirtyGuard extends AuthGuard('jwt') {
         return super.canActivate(context) as Promise<boolean>;
       } catch (err) {
         this.logger.error(err.message);
-        throw new UnauthorizedException(`Access denied: ${err.message}`);
+        throw err;
       }
     }
     return super.canActivate(context) as Promise<boolean>;

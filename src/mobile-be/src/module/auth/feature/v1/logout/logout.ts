@@ -1,16 +1,13 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Injectable,
-  Logger,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Injectable, Logger, Post } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
+import {
+  handleRpcError,
+  ReponseDto,
+} from 'building-blocks/utils/handle-error-rpc';
 import { IsString } from 'class-validator';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
 
@@ -45,7 +42,6 @@ export class LogoutController {
   @Auth()
   public async logout(@Body() request: LogoutRequestDto) {
     const result = await this.commandBus.execute(new Logout(request));
-
     return result;
   }
 }
@@ -65,11 +61,15 @@ export class LogoutHandler implements ICommandHandler<Logout> {
         timeout: 10000,
       });
 
-      if (resp?.data?.messageResp) {
-        throw new BadRequestException(resp.data.messageResp);
+      if (resp?.data?.message !== undefined) {
+        const response = new ReponseDto({
+          name: resp?.data.name,
+          message: resp?.data.message,
+        });
+        handleRpcError(response);
+      } else {
+        return resp?.data ?? null;
       }
-
-      return resp?.data ?? null;
     } catch (error) {
       this.logger.error(error.message);
       throw error;

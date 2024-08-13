@@ -122,9 +122,7 @@ export class VerifyOtpHandler {
       // Rollback transaction in case of error
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
-      return {
-        messageResp: error.message,
-      };
+      return error;
     } finally {
       // Release query runner
       await queryRunner.release();

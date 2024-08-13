@@ -5,6 +5,7 @@ import configs from 'building-blocks/configs/configs';
 import { ErrorHandlersFilter } from 'building-blocks/filters/error-handlers.filter';
 import { LoggerInterceptor } from 'building-blocks/interceptors/logger.interceptor';
 import { ResponseInterceptor } from 'building-blocks/interceptors/response.interceptor';
+import { ErrorsInterceptor } from 'building-blocks/interceptors/error.interceptor';
 import { PrometheusMetrics } from 'building-blocks/monitoring/prometheus.metrics';
 import { Request, Response } from 'express';
 import { AppModule } from './app.module';
@@ -23,7 +24,11 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  app.useGlobalInterceptors(new LoggerInterceptor(), new ResponseInterceptor());
+  app.useGlobalInterceptors(
+    new LoggerInterceptor(),
+    new ResponseInterceptor(),
+    new ErrorsInterceptor(),
+  );
 
   const config = new DocumentBuilder()
     .setTitle(`${configs.serviceName}`)

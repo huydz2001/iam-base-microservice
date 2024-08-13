@@ -22,7 +22,7 @@ import { UserModule } from './module/user/user.module';
 import { AdminThirtyGuard } from 'building-blocks/passport/auth-thirty.guard';
 import { LoggerMiddleware } from 'building-blocks/loggers/logger.middleware';
 import helmet from 'helmet';
-import compression from 'compression';
+import * as compression from 'compression';
 
 @Module({
   imports: [

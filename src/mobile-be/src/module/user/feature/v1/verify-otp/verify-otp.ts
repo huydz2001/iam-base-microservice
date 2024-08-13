@@ -11,6 +11,10 @@ import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
+import {
+  handleRpcError,
+  ReponseDto,
+} from 'building-blocks/utils/handle-error-rpc';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class VerifyOtp {
@@ -77,10 +81,15 @@ export class VerifyOtpHandler implements ICommandHandler<VerifyOtp> {
           timeout: 10000,
         });
 
-        if (resp?.data?.messageResp) {
-          throw new BadRequestException(resp.data.messageResp);
+        if (resp?.data?.message !== undefined) {
+          const response = new ReponseDto({
+            name: resp?.data.name,
+            message: resp?.data.message,
+          });
+          handleRpcError(response);
+        } else {
+          return resp?.data ?? null;
         }
-        return resp?.data ?? null;
       } catch (error) {
         this.logger.error(error.message);
         throw error;

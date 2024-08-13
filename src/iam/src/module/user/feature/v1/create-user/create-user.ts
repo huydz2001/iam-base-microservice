@@ -3,7 +3,10 @@ import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
-import ApplicationException from 'building-blocks/types/exceptions/application.exception';
+import {
+  handleRpcError,
+  ReponseDto,
+} from 'building-blocks/utils/handle-error-rpc';
 import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { DataSource } from 'typeorm';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
@@ -66,30 +69,32 @@ export class CreateUserHandler {
         throw new ConflictException('Phone number has already taken');
       }
 
-      const otp = await this.amqpConnection.request<any>({
+      const resp = await this.amqpConnection.request<any>({
         exchange: configs.rabbitmq.exchange,
         routingKey: RoutingKey.AUTH.REGISTER,
         payload: payload,
         timeout: 10000,
       });
 
-      if (otp) {
+      this.logger.debug(resp);
+
+      if (resp?.message !== undefined) {
+        const response = new ReponseDto({
+          name: resp?.name,
+          message: resp?.message,
+        });
+        handleRpcError(response);
+      } else {
         await this.redisCacheService.setCacheExpried(
           `otp:${payload.email}`,
           JSON.stringify(payload),
           60,
         );
-        return otp;
-      } else {
-        throw new ApplicationException(
-          'Something went wrong. Please try again!',
-        );
+        return resp?.data ?? null;
       }
     } catch (error) {
       this.logger.error(error.message);
-      return {
-        messageResp: error.message,
-      };
+      return error;
     }
   }
 }

@@ -1,5 +1,5 @@
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import configs from 'building-blocks/configs/configs';
 import { EVENT_AUTH } from 'building-blocks/constants/event.constant';
@@ -19,6 +19,7 @@ export class Logout {
 
 @Injectable()
 export class LogoutHandler {
+  private logger = new Logger(LogoutHandler.name);
   constructor(
     @Inject('IAuthRepository') private readonly authRepository: IAuthRepository,
     private redisCacheService: RedisCacheService,
@@ -32,21 +33,24 @@ export class LogoutHandler {
     queueOptions: { autoDelete: true },
   })
   async logout(command: Logout) {
-    const token = await this.authRepository.findToken(
-      command.accessToken,
-      TokenType.ACCESS,
-    );
+    try {
+      const token = await this.authRepository.findToken(
+        command.accessToken,
+        TokenType.ACCESS,
+      );
 
-    if (!token) {
-      return {
-        messageResp: 'AccessToken Not found',
-      };
+      if (!token) {
+        throw new NotFoundException('Token not found');
+      }
+
+      const tokenEntity = await this.authRepository.removeToken(token);
+
+      this.eventEmitter.emit(EVENT_AUTH.LOGOUT, tokenEntity.userId);
+
+      return tokenEntity?.userId;
+    } catch (err) {
+      this.logger.error(err.message);
+      return err;
     }
-
-    const tokenEntity = await this.authRepository.removeToken(token);
-
-    this.eventEmitter.emit(EVENT_AUTH.LOGOUT, tokenEntity.userId);
-
-    return tokenEntity?.userId;
   }
 }

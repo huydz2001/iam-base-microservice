@@ -43,7 +43,7 @@ let JwtThirtyGuard = JwtThirtyGuard_1 = class JwtThirtyGuard extends (0, passpor
             }
             catch (err) {
                 this.logger.error(err.message);
-                throw new common_1.UnauthorizedException(`Access denied: ${err.message}`);
+                throw err;
             }
         }
         return super.canActivate(context);

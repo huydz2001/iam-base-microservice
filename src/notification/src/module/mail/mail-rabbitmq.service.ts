@@ -2,10 +2,10 @@ import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
-import { UserCreated } from 'building-blocks/constracts/identity-constract';
-import * as otpGenerator from 'otp-generator';
-import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
+import { UserCreated } from 'building-blocks/constracts/identity-constract';
+import { randomQueueName } from 'building-blocks/utils/random-queue';
+import * as otpGenerator from 'otp-generator';
 
 @Injectable()
 export class EmailRpcService {
@@ -21,12 +21,13 @@ export class EmailRpcService {
   })
   private async register(payload: any) {
     try {
-      return await this.handleEmailRequestOTP(payload);
+      const resp = await this.handleEmailRequestOTP(payload);
+      return {
+        data: resp,
+      };
     } catch (err) {
       this.logger.error(err.message);
-      return {
-        messageResp: err.message,
-      };
+      return err;
     }
   }
 
