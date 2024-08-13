@@ -1,7 +1,7 @@
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
 
-import { AdminGuard } from 'building-blocks/passport/auth.guard';
+import { AdminThirtyGuard } from 'building-blocks/passport/auth-thirty.guard';
 import { JwtThirtyGuard } from 'building-blocks/passport/jwt-thirty.guard';
 
 export const ROLES_KEY = 'roles';
@@ -15,4 +15,4 @@ export const Auth = (...apis: string[]) => {
 };
 
 export const AdminAuth = () =>
-  applyDecorators(UseGuards(AdminGuard), ApiBearerAuth());
+  applyDecorators(UseGuards(AdminThirtyGuard), ApiBearerAuth());

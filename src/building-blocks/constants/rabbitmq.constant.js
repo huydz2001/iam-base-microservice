@@ -16,7 +16,8 @@ exports.RoutingKey = {
         REFRESHTOKEN: 'ME_REFRESH_TOKEN',
         LOGOUT: 'ME_LOGOUT',
         VERIFY_OTP: 'ME_VERIFY_OTP',
-        CHECK_JWT_TOKEN: 'CHECK_JWT_TOKEN'
+        CHECK_JWT_TOKEN: 'CHECK_JWT_TOKEN',
+        CHECK_ADMIN_GUARD: 'CHECK_ADMN_GUARD'
     }
 };
 //# sourceMappingURL=rabbitmq.constant.js.map

@@ -8,9 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var JwtThirtyGuard_1;
+var AdminThirtyGuard_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JwtThirtyGuard = exports.JwtDto = void 0;
+exports.AdminThirtyGuard = exports.JwtDto = void 0;
 const common_1 = require("@nestjs/common");
 const passport_1 = require("@nestjs/passport");
 const redis_cache_service_1 = require("../redis/redis-cache.service");
@@ -21,12 +21,12 @@ class JwtDto {
     }
 }
 exports.JwtDto = JwtDto;
-let JwtThirtyGuard = JwtThirtyGuard_1 = class JwtThirtyGuard extends (0, passport_1.AuthGuard)('jwt') {
+let AdminThirtyGuard = AdminThirtyGuard_1 = class AdminThirtyGuard extends (0, passport_1.AuthGuard)('jwt') {
     constructor(redisCacheService, checkJwtHandler) {
         super();
         this.redisCacheService = redisCacheService;
         this.checkJwtHandler = checkJwtHandler;
-        this.logger = new common_1.Logger(JwtThirtyGuard_1.name);
+        this.logger = new common_1.Logger(AdminThirtyGuard_1.name);
     }
     async canActivate(context) {
         var _a;
@@ -35,9 +35,10 @@ let JwtThirtyGuard = JwtThirtyGuard_1 = class JwtThirtyGuard extends (0, passpor
         if (authorization) {
             const token = authorization.split(' ')[1];
             try {
-                const resp = await this.checkJwtHandler.checkJwtGuard({ accessToken: token });
+                const resp = await this.checkJwtHandler.checkAdminGuard({ accessToken: token });
+                this.logger.debug(resp);
                 if (!resp) {
-                    throw new common_1.UnauthorizedException(`Access denied: Invalid token payload`);
+                    throw new common_1.UnauthorizedException('Access denied: Invalid token payload');
                 }
                 return super.canActivate(context);
             }
@@ -55,10 +56,10 @@ let JwtThirtyGuard = JwtThirtyGuard_1 = class JwtThirtyGuard extends (0, passpor
         return user;
     }
 };
-exports.JwtThirtyGuard = JwtThirtyGuard;
-exports.JwtThirtyGuard = JwtThirtyGuard = JwtThirtyGuard_1 = __decorate([
+exports.AdminThirtyGuard = AdminThirtyGuard;
+exports.AdminThirtyGuard = AdminThirtyGuard = AdminThirtyGuard_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [redis_cache_service_1.RedisCacheService,
         check_jwt_1.CheckJwtHandler])
-], JwtThirtyGuard);
-//# sourceMappingURL=jwt-thirty.guard.js.map
+], AdminThirtyGuard);
+//# sourceMappingURL=auth-thirty.guard.js.map

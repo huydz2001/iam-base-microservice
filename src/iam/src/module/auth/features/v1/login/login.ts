@@ -38,7 +38,6 @@ export class LoginHandler {
     queueOptions: { autoDelete: true },
   })
   private async login(command: Login): Promise<AuthDto> {
-    console.log(command);
     const user = await this.userRepository.findUserByEmail(command.email);
 
     if (

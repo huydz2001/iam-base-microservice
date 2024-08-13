@@ -7,6 +7,7 @@ import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IAuthRepository } from '../../../../../data/repositories/auth.repository';
 import { TokenType } from '../../../enums/token-type.enum';
+import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
 
 export class Logout {
   accessToken: string;
@@ -20,6 +21,7 @@ export class Logout {
 export class LogoutHandler {
   constructor(
     @Inject('IAuthRepository') private readonly authRepository: IAuthRepository,
+    private redisCacheService: RedisCacheService,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -37,7 +39,7 @@ export class LogoutHandler {
 
     if (!token) {
       return {
-        messageResp: 'Access Token Not found',
+        messageResp: 'AccessToken Not found',
       };
     }
 

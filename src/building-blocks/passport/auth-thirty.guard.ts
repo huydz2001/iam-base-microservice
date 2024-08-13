@@ -12,8 +12,8 @@ export class JwtDto {
 }
 
 @Injectable()
-export class JwtThirtyGuard extends AuthGuard('jwt') {
-  private logger = new Logger(JwtThirtyGuard.name);
+export class AdminThirtyGuard extends AuthGuard('jwt') {
+  private logger = new Logger(AdminThirtyGuard.name);
   constructor(
     private readonly redisCacheService: RedisCacheService,
     private readonly checkJwtHandler: CheckJwtHandler
@@ -27,10 +27,10 @@ export class JwtThirtyGuard extends AuthGuard('jwt') {
     if (authorization) {
       const token = authorization.split(' ')[1];
       try {
-        const resp = await this.checkJwtHandler.checkJwtGuard({ accessToken: token });
+        const resp = await this.checkJwtHandler.checkAdminGuard({ accessToken: token });
 
         if (!resp) {
-          throw new UnauthorizedException(`Access denied: Invalid token payload`);
+          throw new UnauthorizedException('Access denied: Invalid token payload');
         }
         return super.canActivate(context) as Promise<boolean>;
       } catch (err) {

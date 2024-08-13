@@ -14,5 +14,6 @@ export declare const RoutingKey: {
         LOGOUT: string;
         VERIFY_OTP: string;
         CHECK_JWT_TOKEN: string;
+        CHECK_ADMIN_GUARD: string;
     };
 };

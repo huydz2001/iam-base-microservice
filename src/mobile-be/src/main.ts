@@ -23,11 +23,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  app.useGlobalInterceptors(
-    new LoggerInterceptor(),
-    // new ErrorsInterceptor(),
-    new ResponseInterceptor(),
-  );
+  app.useGlobalInterceptors(new LoggerInterceptor(), new ResponseInterceptor());
 
   const config = new DocumentBuilder()
     .setTitle(`${configs.serviceName}`)

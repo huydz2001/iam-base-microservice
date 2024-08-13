@@ -8,6 +8,7 @@ import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
 import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IAuthRepository } from '../../../../../data/repositories/auth.repository';
 import jwt from 'jsonwebtoken';
+import { Role } from 'building-blocks/constracts/identity-constract';
 
 export class CheckTokenHandler {
   private logger = new Logger(CheckTokenHandler.name);
@@ -27,20 +28,61 @@ export class CheckTokenHandler {
       const decodeToken = jwt.verify(payload.accessToken, configs.jwt.secret);
 
       if (!decodeToken) {
-        throw new UnauthorizedException('Invaid Token');
+        throw new UnauthorizedException('Invalid Token');
       }
 
-      const exsitToken = this.redisCacheService.getCache(
+      const exsitToken = await this.redisCacheService.getCache(
         `accessToken:${decodeToken['id']}`,
       );
 
+      this.logger.debug(exsitToken);
+
       if (!exsitToken) {
-        throw new UnauthorizedException('Invaid Token');
+        throw new UnauthorizedException('Invalid Token');
       }
+
+      return exsitToken;
     } catch (err) {
       this.logger.error(err.message);
       return {
-        messageResp: 'Invalid Token',
+        messageResp: err.message,
+      };
+    }
+  }
+
+  @RabbitRPC({
+    exchange: configs.rabbitmq.exchange,
+    routingKey: RoutingKey.MOBILE_BE.CHECK_ADMIN_GUARD,
+    queue: randomQueueName(),
+    queueOptions: { autoDelete: true },
+  })
+  private async checkValidateAdmin(payload: JwtDto) {
+    try {
+      const decodeToken = jwt.verify(payload.accessToken, configs.jwt.secret);
+
+      if (!decodeToken) {
+        throw new UnauthorizedException('Invalid Token');
+      }
+
+      const exsitToken = await this.redisCacheService.getCache(
+        `accessToken:${decodeToken['id']}`,
+      );
+
+      this.logger.debug(decodeToken);
+
+      if (!exsitToken) {
+        throw new UnauthorizedException('Invalid Token');
+      }
+
+      if (decodeToken['role'] != Role.ADMIN) {
+        throw new UnauthorizedException('You have no permission');
+      }
+
+      return exsitToken;
+    } catch (err) {
+      this.logger.error(err.message);
+      return {
+        messageResp: err.message,
       };
     }
   }
