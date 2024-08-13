@@ -1,5 +1,12 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Body, Controller, Injectable, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Injectable,
+  Logger,
+  Post,
+} from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
@@ -39,6 +46,7 @@ export class LogoutController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('logout')
+  @HttpCode(200)
   @Auth()
   public async logout(@Body() request: LogoutRequestDto) {
     const result = await this.commandBus.execute(new Logout(request));

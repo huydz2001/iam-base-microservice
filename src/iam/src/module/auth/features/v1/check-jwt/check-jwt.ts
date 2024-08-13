@@ -76,6 +76,10 @@ export class CheckTokenHandler {
         throw new UnauthorizedException('Invalid Token');
       }
 
+      if (JSON.parse(exsitToken).token !== accessToken) {
+        throw new UnauthorizedException('Invalid Token');
+      }
+
       return decodeToken;
     } catch (err) {
       this.logger.error(err.message);

@@ -1,5 +1,14 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Body, Controller, Injectable, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Injectable,
+  Logger,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
@@ -9,6 +18,7 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsString } from 'class-validator';
+import { Response } from 'express';
 
 export class Login {
   email: string;
@@ -43,8 +53,11 @@ export class LoginController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('login')
+  @HttpCode(200)
   public async login(@Body() request: LoginRequestDto) {
     const result = await this.commandBus.execute(new Login(request));
+
+    // res.status(HttpStatus.OK).send(result);
 
     return result;
   }
