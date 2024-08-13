@@ -9,6 +9,7 @@ import { EmailRpcService } from './mail-rabbitmq.service';
   imports: [
     MailerModule.forRoot({
       transport: {
+        service: 'gmail',
         host: configs.mail.mailHost,
         secure: false,
         auth: {
@@ -17,10 +18,10 @@ import { EmailRpcService } from './mail-rabbitmq.service';
         },
       },
       defaults: {
-        from: `"No Reply" <${configs.mail.from}>`,
+        from: `"IAM" <${configs.mail.from}>`,
       },
       template: {
-        dir: join(__dirname, 'mail/templates'),
+        dir: join(__dirname, '/templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,
@@ -29,6 +30,6 @@ import { EmailRpcService } from './mail-rabbitmq.service';
     }),
   ],
   providers: [EmailRpcService],
-  exports: [EmailRpcService, MailerModule],
+  exports: [EmailRpcService],
 })
 export class MailModule {}

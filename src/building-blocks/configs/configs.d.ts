@@ -47,6 +47,7 @@ declare const _default: {
         user: any;
         pass: any;
         from: any;
+        otpExpired: any;
     };
 };
 export default _default;

@@ -64,6 +64,8 @@ export class GetModulesByUserHandler
 
     const permissionsUser = await this.permissionRepository.findByUserId(id);
 
+    console.log(permissionsUser);
+
     if (permissionsUser.length > 0) {
       permissionsUser.map((item) => {
         permissionIds.push(item.id);
@@ -71,6 +73,7 @@ export class GetModulesByUserHandler
     }
 
     permissionIds = [...new Set(permissionIds)];
+    console.log(permissionIds);
 
     const modules = this.moduleRepository.findByPermissionsIds(permissionIds);
 

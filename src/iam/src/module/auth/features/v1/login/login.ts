@@ -1,14 +1,18 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { Inject } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import ApplicationException from 'building-blocks/types/exceptions/application.exception';
 import { isPasswordMatch } from 'building-blocks/utils/encryption';
 
-import Joi from 'joi';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import configs from 'building-blocks/configs/configs';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
+import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IAuthRepository } from '../../../../../data/repositories/auth.repository';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 import { AuthDto } from '../../../../auth/dtos/auth.dto';
 import { GenerateToken } from '../generate-token/generate-token';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EVENT_AUTH } from 'building-blocks/constants/event.constant';
 
 export class Login {
   email: string;
@@ -19,51 +23,22 @@ export class Login {
   }
 }
 
-export class LoginRequestDto {
-  @ApiProperty()
-  email: string;
-
-  @ApiProperty()
-  password: string;
-
-  constructor(request: Partial<LoginRequestDto> = {}) {
-    Object.assign(this, request);
-  }
-}
-
-const loginValidations = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
-});
-
-@ApiBearerAuth()
-@ApiTags('Identities')
-@Controller({
-  path: `/identity`,
-  version: '1',
-})
-export class LoginController {
-  constructor(private readonly commandBus: CommandBus) {}
-
-  @Post('login')
-  public async login(@Body() request: LoginRequestDto): Promise<AuthDto> {
-    const result = await this.commandBus.execute(new Login(request));
-
-    return result;
-  }
-}
-
-@CommandHandler(Login)
-export class LoginHandler implements ICommandHandler<Login> {
+export class LoginHandler {
   constructor(
     @Inject('IAuthRepository') private readonly authRepository: IAuthRepository,
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
     private readonly commandBus: CommandBus,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async execute(command: Login): Promise<AuthDto> {
-    await loginValidations.validateAsync(command);
-
+  @RabbitRPC({
+    exchange: configs.rabbitmq.exchange,
+    routingKey: RoutingKey.MOBILE_BE.LOGIN,
+    queue: randomQueueName(),
+    queueOptions: { autoDelete: true },
+  })
+  private async login(command: Login): Promise<AuthDto> {
+    console.log(command);
     const user = await this.userRepository.findUserByEmail(command.email);
 
     if (
@@ -76,6 +51,10 @@ export class LoginHandler implements ICommandHandler<Login> {
     const token = await this.commandBus.execute(
       new GenerateToken({ userId: user.id, role: user.role }),
     );
+
+    const payloadSaveToken = { userId: user.id, token: token };
+
+    this.eventEmitter.emit(EVENT_AUTH.SAVE_TOKEN_REDIS, payloadSaveToken);
 
     return token;
   }

@@ -30,19 +30,6 @@ async function bootstrap() {
     new ResponseInterceptor(),
   );
 
-  app.connectMicroservice({
-    transport: Transport.RMQ,
-    options: {
-      urls: [configs.rabbitmq.uri],
-      queue: 'iam_queue',
-      queueOptions: {
-        durable: false,
-      },
-    },
-  });
-
-  await app.startAllMicroservices();
-
   const config = new DocumentBuilder()
     .setTitle(`${configs.serviceName}`)
     .setDescription(`${configs.serviceName} api description`)

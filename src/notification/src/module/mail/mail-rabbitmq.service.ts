@@ -1,12 +1,13 @@
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { MailerService } from '@nestjs-modules/mailer';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
 import { UserCreated } from 'building-blocks/constracts/identity-constract';
 import * as otpGenerator from 'otp-generator';
 import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 
+@Injectable()
 export class EmailRpcService {
   private logger = new Logger(EmailRpcService.name);
 

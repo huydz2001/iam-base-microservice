@@ -1,19 +1,25 @@
-import { Global, Module } from '@nestjs/common';
-import { OpenTelemetryModule } from '../openTelemetry/open-telemetry.module';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { Global, Module } from '@nestjs/common';
 import configs from '../configs/configs';
 
 @Global()
 @Module({
+  controllers: [],
   imports: [
-    OpenTelemetryModule.forRoot(),
     RabbitMQModule.forRoot(RabbitMQModule, {
-      exchanges: [{ name: 'test', type: 'topic', options: { autoDelete: true } }],
+      exchanges: [
+        {
+          name: configs.rabbitmq.exchange,
+          type: 'topic'
+        }
+      ],
       uri: configs.rabbitmq.uri,
-      connectionInitOptions: { wait: false }
-    })
+      connectionInitOptions: { wait: false },
+      enableControllerDiscovery: true
+    }),
+    RabbitModule
   ],
   providers: [],
   exports: [RabbitMQModule]
 })
-export class RabbitmqModule {}
+export class RabbitModule {}

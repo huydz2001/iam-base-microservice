@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitmqModule } from 'building-blocks/rabbitmq/rabbitmq.module';
 import { ModuleRepository } from '../../data/repositories/module.repository';
 import { PermissionRepository } from '../../data/repositories/permission.repository';
 import { Modules } from '../menu/entities/module.entity';
@@ -19,13 +18,13 @@ import {
   GetModulesByGroupHandler,
 } from './features/v1/get-module-by-group/get-module-by-group';
 import {
-  GetModulesController,
-  GetModulesHandler,
-} from './features/v1/get-module/get-module';
-import {
   GetModulesByUserController,
   GetModulesByUserHandler,
 } from './features/v1/get-module-by-user/get-module-by-user';
+import {
+  GetModulesController,
+  GetModulesHandler,
+} from './features/v1/get-module/get-module';
 
 @Module({
   imports: [CqrsModule, TypeOrmModule.forFeature([Permission, Modules, Group])],

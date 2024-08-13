@@ -30,9 +30,7 @@ const envVarsSchema = Joi.object()
     POSTGRES_PORT: Joi.number().default(5432).description('Postgres host'),
     POSTGRES_USERNAME: Joi.string().default('postgres').description('Postgres username'),
     POSTGRES_PASSWORD: Joi.string().default('postgres').description('Postgres password'),
-    POSTGRES_Database: Joi.string()
-      .default('default_database')
-      .description('Postgres database name'),
+    POSTGRES_DB: Joi.string().default('default_database').description('Postgres database name'),
     POSTGRES_SYNCHRONIZE: Joi.boolean()
       .default(false)
       .description('Synchronize if true it dosent use migrations'),
@@ -70,7 +68,8 @@ const envVarsSchema = Joi.object()
     MAIL_HOST: Joi.string().default('smtp.gmail.com').description('Mail host'),
     MAIL_USER: Joi.string().default('huyydq01@gmail.com').description('Mail user'),
     MAIL_PASSWORD: Joi.string().description('Mail password'),
-    MAIL_FROM: Joi.string().default('huyydq01@gmail.com').description('Mail from')
+    MAIL_FROM: Joi.string().default('huyydq01@gmail.com').description('Mail from'),
+    OTP_EXPIRED: Joi.number().default(60).description('Otp expired')
   })
   .unknown();
 
@@ -130,6 +129,7 @@ export default {
     mailHost: envVars.MAIL_HOST,
     user: envVars.MAIL_USER,
     pass: envVars.MAIL_PASSWORD,
-    from: envVars.MAIL_FROM
+    from: envVars.MAIL_FROM,
+    otpExpired: envVars.OTP_EXPIRED
   }
 };

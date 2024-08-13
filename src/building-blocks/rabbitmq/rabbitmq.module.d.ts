@@ -1,2 +1,2 @@
-export declare class RabbitmqModule {
+export declare class RabbitModule {
 }

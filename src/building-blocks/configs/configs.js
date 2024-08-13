@@ -32,9 +32,7 @@ const envVarsSchema = joi_1.default.object()
     POSTGRES_PORT: joi_1.default.number().default(5432).description('Postgres host'),
     POSTGRES_USERNAME: joi_1.default.string().default('postgres').description('Postgres username'),
     POSTGRES_PASSWORD: joi_1.default.string().default('postgres').description('Postgres password'),
-    POSTGRES_Database: joi_1.default.string()
-        .default('default_database')
-        .description('Postgres database name'),
+    POSTGRES_DB: joi_1.default.string().default('default_database').description('Postgres database name'),
     POSTGRES_SYNCHRONIZE: joi_1.default.boolean()
         .default(false)
         .description('Synchronize if true it dosent use migrations'),
@@ -72,7 +70,8 @@ const envVarsSchema = joi_1.default.object()
     MAIL_HOST: joi_1.default.string().default('smtp.gmail.com').description('Mail host'),
     MAIL_USER: joi_1.default.string().default('huyydq01@gmail.com').description('Mail user'),
     MAIL_PASSWORD: joi_1.default.string().description('Mail password'),
-    MAIL_FROM: joi_1.default.string().default('huyydq01@gmail.com').description('Mail from')
+    MAIL_FROM: joi_1.default.string().default('huyydq01@gmail.com').description('Mail from'),
+    OTP_EXPIRED: joi_1.default.number().default(60).description('Otp expired')
 })
     .unknown();
 const { value: envVars, error } = envVarsSchema
@@ -129,7 +128,8 @@ exports.default = {
         mailHost: envVars.MAIL_HOST,
         user: envVars.MAIL_USER,
         pass: envVars.MAIL_PASSWORD,
-        from: envVars.MAIL_FROM
+        from: envVars.MAIL_FROM,
+        otpExpired: envVars.OTP_EXPIRED
     }
 };
 //# sourceMappingURL=configs.js.map

@@ -9,27 +9,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RabbitmqModule = void 0;
-const common_1 = require("@nestjs/common");
-const open_telemetry_module_1 = require("../openTelemetry/open-telemetry.module");
+exports.RabbitModule = void 0;
 const nestjs_rabbitmq_1 = require("@golevelup/nestjs-rabbitmq");
+const common_1 = require("@nestjs/common");
 const configs_1 = __importDefault(require("../configs/configs"));
-let RabbitmqModule = class RabbitmqModule {
+let RabbitModule = class RabbitModule {
 };
-exports.RabbitmqModule = RabbitmqModule;
-exports.RabbitmqModule = RabbitmqModule = __decorate([
+exports.RabbitModule = RabbitModule;
+exports.RabbitModule = RabbitModule = __decorate([
     (0, common_1.Global)(),
     (0, common_1.Module)({
+        controllers: [],
         imports: [
-            open_telemetry_module_1.OpenTelemetryModule.forRoot(),
             nestjs_rabbitmq_1.RabbitMQModule.forRoot(nestjs_rabbitmq_1.RabbitMQModule, {
-                exchanges: [{ name: 'test', type: 'topic', options: { autoDelete: true } }],
+                exchanges: [
+                    {
+                        name: configs_1.default.rabbitmq.exchange,
+                        type: 'topic'
+                    }
+                ],
                 uri: configs_1.default.rabbitmq.uri,
-                connectionInitOptions: { wait: false }
-            })
+                connectionInitOptions: { wait: false },
+                enableControllerDiscovery: true
+            }),
+            RabbitModule
         ],
         providers: [],
-        exports: []
+        exports: [nestjs_rabbitmq_1.RabbitMQModule]
     })
-], RabbitmqModule);
+], RabbitModule);
 //# sourceMappingURL=rabbitmq.module.js.map
