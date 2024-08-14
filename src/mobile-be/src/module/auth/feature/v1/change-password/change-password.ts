@@ -16,26 +16,32 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsString } from 'class-validator';
+import { Auth } from '../../../../../common/decorator/auth.decorator';
 
-export class Login {
-  email: string;
-  password: string;
+export class ChangePassword {
+  userId: string;
+  oldPass: string;
+  newPass: string;
 
-  constructor(request: Partial<Login> = {}) {
+  constructor(request: Partial<ChangePassword> = {}) {
     Object.assign(this, request);
   }
 }
 
-export class LoginRequestDto {
+export class ChangePasswordRequestDto {
   @ApiProperty()
   @IsString()
-  email: string;
+  userId: string;
 
   @ApiProperty()
   @IsString()
-  password: string;
+  oldPass: string;
 
-  constructor(request: Partial<LoginRequestDto> = {}) {
+  @ApiProperty()
+  @IsString()
+  newPass: string;
+
+  constructor(request: Partial<ChangePasswordRequestDto> = {}) {
     Object.assign(this, request);
   }
 }
@@ -46,34 +52,40 @@ export class LoginRequestDto {
   path: `/identity`,
   version: '1',
 })
-export class LoginController {
+export class ChangePassController {
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Post('login')
+  @Post('change-password')
+  @Auth()
   @HttpCode(200)
-  public async login(@Body() request: LoginRequestDto) {
-    const result = await this.commandBus.execute(new Login(request));
-
-    // res.status(HttpStatus.OK).send(result);
+  public async changePass(@Body() request: ChangePasswordRequestDto) {
+    console.log(request);
+    const result = await this.commandBus.execute(
+      new ChangePasswordRequestDto(request),
+    );
 
     return result;
   }
 }
 
 @Injectable()
-@CommandHandler(Login)
-export class LoginHandler implements ICommandHandler<Login> {
-  private logger = new Logger(LoginHandler.name);
+@CommandHandler(ChangePasswordRequestDto)
+export class ChangePassHandler
+  implements ICommandHandler<ChangePasswordRequestDto>
+{
+  private logger = new Logger(ChangePassHandler.name);
   constructor(private readonly amqpConnection: AmqpConnection) {}
 
-  async execute(command: Login) {
+  async execute(command: ChangePasswordRequestDto) {
     try {
       const resp = await this.amqpConnection.request<any>({
         exchange: configs.rabbitmq.exchange,
-        routingKey: RoutingKey.MOBILE_BE.LOGIN,
+        routingKey: RoutingKey.MOBILE_BE.CHANGE_PASS,
         payload: command,
         timeout: 10000,
       });
+
+      this.logger.debug(resp);
 
       if (resp?.data?.message !== undefined) {
         const response = new ReponseDto({

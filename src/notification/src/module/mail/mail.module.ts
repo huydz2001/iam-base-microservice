@@ -3,7 +3,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { Module } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
 import { join } from 'path';
-import { EmailRpcService } from './mail-rabbitmq.service';
+import { EmailChangePassHandler } from './feature/v1/mail-otp-change-pass/mail-otp-change-pass';
+import { EmailRegisterHandler } from './feature/v1/mail-otp-register/mail-otp-register';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { EmailRpcService } from './mail-rabbitmq.service';
       },
     }),
   ],
-  providers: [EmailRpcService],
-  exports: [EmailRpcService],
+  providers: [EmailChangePassHandler, EmailRegisterHandler],
+  exports: [EmailChangePassHandler, EmailRegisterHandler],
 })
 export class MailModule {}

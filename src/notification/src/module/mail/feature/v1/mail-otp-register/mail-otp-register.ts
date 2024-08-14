@@ -11,8 +11,8 @@ import { EVENT_AUTH } from 'building-blocks/constants/event.constant';
 import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
-export class EmailRpcService {
-  private logger = new Logger(EmailRpcService.name);
+export class EmailRegisterHandler {
+  private logger = new Logger(EmailRegisterHandler.name);
 
   constructor(
     private mailService: MailerService,

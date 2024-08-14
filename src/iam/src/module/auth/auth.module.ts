@@ -17,10 +17,27 @@ import {
 } from './features/v1/refresh-token/refresh-token';
 import { ValidateTokenHandler } from './features/v1/validate-token/validate-token';
 import { CheckTokenHandler } from './features/v1/check-jwt/check-jwt';
+import { ChangePassHandler } from './features/v1/change-pass/change-pass';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import configs from 'building-blocks/configs/configs';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([User, Token, Profile])],
-  exports: [],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([User, Token, Profile]),
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: configs.rabbitmq.exchange,
+          type: 'topic',
+          options: { autoDelete: true },
+        },
+      ],
+      uri: configs.rabbitmq.uri,
+      connectionInitOptions: { wait: false },
+    }),
+  ],
+  exports: [ChangePassHandler],
   providers: [
     ValidateTokenHandler,
     RefreshTokenHandler,
@@ -29,6 +46,7 @@ import { CheckTokenHandler } from './features/v1/check-jwt/check-jwt';
     GenerateTokenHandler,
     HandleEventListener,
     CheckTokenHandler,
+    ChangePassHandler,
     {
       provide: 'IAuthRepository',
       useClass: AuthRepository,

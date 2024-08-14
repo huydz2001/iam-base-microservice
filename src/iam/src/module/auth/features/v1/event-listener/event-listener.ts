@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EVENT_AUTH } from 'building-blocks/constants/event.constant';
 import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
-import { getDurationExpired } from './../../../../../../../building-blocks/utils/get-duration-expired';
+import { getDurationExpired } from 'building-blocks/utils/get-duration-expired';
 
 @Injectable()
 export class HandleEventListener {
@@ -33,6 +33,14 @@ export class HandleEventListener {
 
   @OnEvent(EVENT_AUTH.LOGOUT)
   async logout(payload: any) {
+    Promise.all([
+      await this.redisCacheService.delValue(`accessToken:${payload}`),
+      await this.redisCacheService.delValue(`refreshToken:${payload}`),
+    ]);
+  }
+
+  @OnEvent(EVENT_AUTH.DEL_TOKEN_REDIS)
+  async delTokenRedis(payload: any) {
     Promise.all([
       await this.redisCacheService.delValue(`accessToken:${payload}`),
       await this.redisCacheService.delValue(`refreshToken:${payload}`),

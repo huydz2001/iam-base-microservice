@@ -16,17 +16,18 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { Auth } from '../../../../../common/decorator/auth.decorator';
 
 export class VerifyOtp {
   otp: string;
-  email: string;
+  userId: string;
 
   constructor(request: Partial<VerifyOtp> = {}) {
     Object.assign(this, request);
   }
 }
 
-export class VerifyOtpRequestDto {
+export class VerifyOtpChangePassRequestDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -35,49 +36,54 @@ export class VerifyOtpRequestDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  email: string;
+  userId: string;
 }
 
 @ApiBearerAuth()
 @ApiTags('Users')
 @Controller({
-  path: `/user`,
+  path: `/identity`,
   version: '1',
 })
-export class VerifyOtpController {
+export class VerifyOtpChangePassController {
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Post('verify-otp')
-  public async createUser(@Body() request: VerifyOtpRequestDto): Promise<any> {
-    const result = await this.commandBus.execute(
-      new VerifyOtp({
-        otp: request.otp,
-        email: request.email,
-      }),
-    );
+  @Post('verify-otp-change-pass')
+  @Auth()
+  public async createUser(
+    @Body() request: VerifyOtpChangePassRequestDto,
+  ): Promise<any> {
+    const result = await this.commandBus.execute(new VerifyOtp(request));
 
     return result;
   }
 }
 
 @CommandHandler(VerifyOtp)
-export class VerifyOtpHandler implements ICommandHandler<VerifyOtp> {
-  private logger = new Logger(VerifyOtpHandler.name);
+export class VerifyOtpChangePassHandler implements ICommandHandler<VerifyOtp> {
+  private logger = new Logger(VerifyOtpChangePassHandler.name);
   constructor(
     private readonly amqpConnection: AmqpConnection,
     private readonly redisCacheService: RedisCacheService,
   ) {}
   async execute(command: VerifyOtp): Promise<any> {
-    const data = await this.redisCacheService.getCache(`otp:${command.email}`);
+    const data = await this.redisCacheService.getCache(
+      `otp-change-pass:${command.userId}`,
+    );
 
     if (data) {
       const result = JSON.parse(data);
-      const userCreate = result;
+      const { otp, ...dataChangePass } = result;
+
+      if (otp !== command.otp) {
+        throw new BadRequestException('Otp is not correct');
+      }
+
       try {
         const resp = await this.amqpConnection.request<any>({
           exchange: configs.rabbitmq.exchange,
-          routingKey: RoutingKey.MOBILE_BE.VERIFY_OTP,
-          payload: userCreate,
+          routingKey: RoutingKey.MOBILE_BE.VERIFY_OTP_CHANGE_PASS,
+          payload: dataChangePass,
           timeout: 10000,
         });
 
@@ -95,7 +101,7 @@ export class VerifyOtpHandler implements ICommandHandler<VerifyOtp> {
         throw error;
       }
     } else {
-      throw new BadRequestException('OTP not correct');
+      throw new BadRequestException('Otp has been expired');
     }
   }
 }

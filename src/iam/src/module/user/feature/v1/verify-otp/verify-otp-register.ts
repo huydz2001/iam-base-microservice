@@ -11,12 +11,12 @@ import { IGroupRepository } from '../../../../../data/repositories/group.reposit
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
 import { IProfileRepository } from '../../../../../data/repositories/profile.repository';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
-import { Group } from '../../../../../module/group/entities/group.entity';
-import { Permission } from '../../../../../module/permission/entities/permission.entity';
-import { TYPE_ACTION } from '../../../../../module/permission/enums/type-action.enum';
-import { Profile } from '../../../../../module/user/entities/profile.entity';
-import { User } from '../../../../../module/user/entities/user.entity';
-import mapper from '../../../../../module/user/mapping';
+import { Group } from '../../../../group/entities/group.entity';
+import { Permission } from '../../../../permission/entities/permission.entity';
+import { TYPE_ACTION } from '../../../../permission/enums/type-action.enum';
+import { Profile } from '../../../entities/profile.entity';
+import { User } from '../../../entities/user.entity';
+import mapper from '../../../mapping';
 import { UserDto } from '../../../dtos/user-dto';
 import { encryptPassword } from 'building-blocks/utils/encryption';
 
@@ -30,8 +30,8 @@ export class VerifyOtp {
 }
 
 @Injectable()
-export class VerifyOtpHandler {
-  private logger = new Logger(VerifyOtpHandler.name);
+export class VerifyOtpRegisterHandler {
+  private logger = new Logger(VerifyOtpRegisterHandler.name);
   constructor(
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
     @Inject('IPermissionRepository')
@@ -53,6 +53,7 @@ export class VerifyOtpHandler {
     queueOptions: { autoDelete: true },
   })
   private async execute(payload: any) {
+    console.log(payload);
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
 

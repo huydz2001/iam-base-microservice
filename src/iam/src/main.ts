@@ -8,7 +8,6 @@ import { ErrorHandlersFilter } from 'building-blocks/filters/error-handlers.filt
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { LoggerInterceptor } from 'building-blocks/interceptors/logger.interceptor';
 import { ResponseInterceptor } from 'building-blocks/interceptors/response.interceptor';
-import { Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

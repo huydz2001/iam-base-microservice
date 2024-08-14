@@ -16,7 +16,7 @@ import {
 } from 'building-blocks/utils/handle-error-rpc';
 import { Response } from 'express';
 import { Role } from '../../../enums/role.enum';
-import { RoutingKey } from './../../../../../../../building-blocks/constants/rabbitmq.constant';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 
 export class CreateUser {
   email: string;

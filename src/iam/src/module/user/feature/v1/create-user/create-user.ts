@@ -14,7 +14,7 @@ import { IPermissionRepository } from '../../../../../data/repositories/permissi
 import { IProfileRepository } from '../../../../../data/repositories/profile.repository';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 import { Role } from '../../../enums/role.enum';
-import { RoutingKey } from './../../../../../../../building-blocks/constants/rabbitmq.constant';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 
 export class CreateUser {
   email: string;
@@ -63,7 +63,7 @@ export class CreateUserHandler {
       }
 
       const existPhone = await this.userRepository.findUserByPhone(
-        payload.email,
+        payload.phone,
       );
       if (existPhone) {
         throw new ConflictException('Phone number has already taken');
@@ -85,6 +85,7 @@ export class CreateUserHandler {
         });
         handleRpcError(response);
       } else {
+        payload = { ...payload, otp: resp.data };
         await this.redisCacheService.setCacheExpried(
           `otp:${payload.email}`,
           JSON.stringify(payload),

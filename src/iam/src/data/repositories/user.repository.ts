@@ -121,8 +121,12 @@ export class UserRepository implements IUserRepository {
   }
 
   async findUserById(id: string): Promise<User> {
-    return await this.userRepository.findOneBy({
-      id: id,
+    return await this.userRepository.findOne({
+      where: { id: id },
+      relations: {
+        profile: true,
+      },
+      select: ['id', 'hashPass', 'role', 'email'],
     });
   }
 
