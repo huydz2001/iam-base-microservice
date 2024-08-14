@@ -14,12 +14,14 @@ exports.ErrorHandlersFilter = void 0;
 const common_1 = require("@nestjs/common");
 const http_problem_details_1 = require("http-problem-details");
 const joi_1 = require("joi");
+const logger_service_1 = require("../loggers/logger.service");
 const application_exception_1 = require("../types/exceptions/application.exception");
-const serilization_1 = require("../utils/serilization");
 const http_client_exception_1 = __importDefault(require("../types/exceptions/http-client.exception"));
+const serilization_1 = require("../utils/serilization");
 let ErrorHandlersFilter = ErrorHandlersFilter_1 = class ErrorHandlersFilter {
     constructor() {
         this.logger = new common_1.Logger(ErrorHandlersFilter_1.name);
+        this.loggerService = new logger_service_1.LoggersService();
     }
     catch(err, host) {
         const ctx = host.switchToHttp();
@@ -45,6 +47,10 @@ let ErrorHandlersFilter = ErrorHandlersFilter_1 = class ErrorHandlersFilter {
         else if (err.constructor.name == 'NotFoundException') {
             problem = this.createProblemDocument(common_1.NotFoundException.name, err.message, err.stack, err.getStatus());
             statusCode = common_1.HttpStatus.NOT_FOUND;
+        }
+        else if (err.constructor.name == 'ForbiddenException') {
+            problem = this.createProblemDocument(common_1.ForbiddenException.name, err.message, err.stack, err.getStatus());
+            statusCode = common_1.HttpStatus.FORBIDDEN;
         }
         else if (err instanceof http_client_exception_1.default) {
             problem = this.createProblemDocument(http_client_exception_1.default.name, err.message, err.stack, err.statusCode);

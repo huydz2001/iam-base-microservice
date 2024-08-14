@@ -27,13 +27,13 @@ let AdminGuard = class AdminGuard extends (0, passport_1.AuthGuard)('jwt') {
         const request = context.switchToHttp().getRequest();
         const token = (_a = request.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
         if (!token) {
-            return false;
+            throw new common_1.ForbiddenException(`You don't have permission`);
         }
         try {
             const payload = jsonwebtoken_1.default.verify(token, configs_1.default.jwt.secret);
-            console.log(payload);
             request.user = payload;
-            if ((payload === null || payload === void 0 ? void 0 : payload['role']) !== identity_constract_1.Role.ADMIN) {
+            const arrAdmin = [identity_constract_1.Role.ADMIN, identity_constract_1.Role.SUB_ADMIN];
+            if (!arrAdmin.includes(payload === null || payload === void 0 ? void 0 : payload['role'])) {
                 throw new common_1.UnauthorizedException('Access dined!');
             }
             return super.canActivate(context);

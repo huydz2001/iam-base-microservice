@@ -1,33 +1,48 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ModuleRepository } from '../../data/repositories/module.repository';
 import { PermissionRepository } from '../../data/repositories/permission.repository';
-import { RabbitmqModule } from 'building-blocks/rabbitmq/rabbitmq.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Permission } from '../permission/entities/permission.entity';
 import { Modules } from '../menu/entities/module.entity';
+import { Permission } from '../permission/entities/permission.entity';
 
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import configs from 'building-blocks/configs/configs';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
-import {
-  CreateUserController,
-  CreateUserHandler,
-} from './feature/v1/create-user/create-user';
 import { GroupRepository } from '../../data/repositories/group.repository';
-import { User } from './entities/user.entity';
-import { Group } from '../group/entities/group.entity';
-import { UserRepository } from '../../data/repositories/user.repository';
-import { Profile } from './entities/profile.entity';
 import { ProfileRepository } from '../../data/repositories/profile.repository';
-
+import { UserRepository } from '../../data/repositories/user.repository';
+import { VerifyOtpChangePassHandler } from '../auth/features/v1/verify-change-pass/verify-change-pass';
+import { Group } from '../group/entities/group.entity';
+import { Profile } from './entities/profile.entity';
+import { User } from './entities/user.entity';
+import { CreateUserHandler } from './feature/v1/create-user/create-user';
+import { VerifyOtpRegisterHandler } from './feature/v1/verify-otp/verify-otp-register';
 @Module({
   imports: [
     CqrsModule,
-    RabbitmqModule.forRoot(),
     TypeOrmModule.forFeature([Permission, User, Group, Modules, Profile]),
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: configs.rabbitmq.exchange,
+          type: 'topic',
+          options: { autoDelete: true },
+        },
+      ],
+      uri: configs.rabbitmq.uri,
+      connectionInitOptions: { wait: false },
+    }),
   ],
-  exports: [],
+  exports: [
+    CreateUserHandler,
+    VerifyOtpRegisterHandler,
+    VerifyOtpChangePassHandler,
+  ],
   providers: [
     CreateUserHandler,
+    VerifyOtpRegisterHandler,
+    VerifyOtpChangePassHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',
@@ -50,6 +65,6 @@ import { ProfileRepository } from '../../data/repositories/profile.repository';
       useClass: ModuleRepository,
     },
   ],
-  controllers: [CreateUserController],
+  controllers: [],
 })
 export class UserModule {}

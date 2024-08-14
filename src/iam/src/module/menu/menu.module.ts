@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitmqModule } from 'building-blocks/rabbitmq/rabbitmq.module';
 import { ModuleRepository } from '../../data/repositories/module.repository';
 import { PermissionRepository } from '../../data/repositories/permission.repository';
 import { Modules } from '../menu/entities/module.entity';
@@ -19,19 +18,24 @@ import {
   GetModulesByGroupHandler,
 } from './features/v1/get-module-by-group/get-module-by-group';
 import {
+  GetModulesByUserController,
+  GetModulesByUserHandler,
+} from './features/v1/get-module-by-user/get-module-by-user';
+import {
   GetModulesController,
   GetModulesHandler,
 } from './features/v1/get-module/get-module';
 import {
-  GetModulesByUserController,
-  GetModulesByUserHandler,
-} from './features/v1/get-module-by-user/get-module-by-user';
+  UpdateModuleController,
+  UpdateModuleHandler,
+} from './features/v1/update-module/update-module';
+import { UserRepository } from '../../data/repositories/user.repository';
+import { User } from '../user/entities/user.entity';
 
 @Module({
   imports: [
     CqrsModule,
-    RabbitmqModule.forRoot(),
-    TypeOrmModule.forFeature([Permission, Modules, Group]),
+    TypeOrmModule.forFeature([Permission, Modules, Group, User]),
   ],
   exports: [],
   providers: [
@@ -39,6 +43,7 @@ import {
     GetModulesHandler,
     GetModulesByGroupHandler,
     GetModulesByUserHandler,
+    UpdateModuleHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',
@@ -52,12 +57,17 @@ import {
       provide: 'IModuleRepository',
       useClass: ModuleRepository,
     },
+    {
+      provide: 'IUserRepository',
+      useClass: UserRepository,
+    },
   ],
   controllers: [
     GetModulesByUserController,
     CreateModuleController,
     GetModulesController,
     GetModulesByGroupController,
+    UpdateModuleController,
   ],
 })
 export class MenuModule {}

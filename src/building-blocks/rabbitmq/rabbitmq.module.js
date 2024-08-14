@@ -5,52 +5,37 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var RabbitmqModule_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RabbitmqModule = void 0;
+exports.RabbitModule = void 0;
+const nestjs_rabbitmq_1 = require("@golevelup/nestjs-rabbitmq");
 const common_1 = require("@nestjs/common");
-const open_telemetry_module_1 = require("../openTelemetry/open-telemetry.module");
-const rabbitmq_connection_1 = require("./rabbitmq-connection");
-const rabbitmq_publisher_1 = require("./rabbitmq-publisher");
-const rabitmq_subscriber_1 = require("./rabitmq-subscriber");
-let RabbitmqModule = RabbitmqModule_1 = class RabbitmqModule {
-    constructor(rabbitmqConnection) {
-        this.rabbitmqConnection = rabbitmqConnection;
-    }
-    async onApplicationShutdown() {
-        await this.rabbitmqConnection.closeConnection();
-    }
-    static forRoot(options) {
-        return {
-            module: RabbitmqModule_1,
-            providers: [rabbitmq_connection_1.RabbitmqConnection, { provide: rabbitmq_connection_1.RabbitmqOptions, useValue: options }]
-        };
-    }
+const configs_1 = __importDefault(require("../configs/configs"));
+let RabbitModule = class RabbitModule {
 };
-exports.RabbitmqModule = RabbitmqModule;
-exports.RabbitmqModule = RabbitmqModule = RabbitmqModule_1 = __decorate([
+exports.RabbitModule = RabbitModule;
+exports.RabbitModule = RabbitModule = __decorate([
     (0, common_1.Global)(),
     (0, common_1.Module)({
-        imports: [open_telemetry_module_1.OpenTelemetryModule.forRoot()],
-        providers: [
-            {
-                provide: 'IRabbitmqConnection',
-                useClass: rabbitmq_connection_1.RabbitmqConnection
-            },
-            {
-                provide: 'IRabbitmqPublisher',
-                useClass: rabbitmq_publisher_1.RabbitmqPublisher
-            },
-            {
-                provide: 'IRabbitmqConsumer',
-                useClass: rabitmq_subscriber_1.RabbitmqConsumer
-            }
+        controllers: [],
+        imports: [
+            nestjs_rabbitmq_1.RabbitMQModule.forRoot(nestjs_rabbitmq_1.RabbitMQModule, {
+                exchanges: [
+                    {
+                        name: configs_1.default.rabbitmq.exchange,
+                        type: 'topic'
+                    }
+                ],
+                uri: configs_1.default.rabbitmq.uri,
+                connectionInitOptions: { wait: false },
+                enableControllerDiscovery: true
+            }),
+            RabbitModule
         ],
-        exports: ['IRabbitmqConnection', 'IRabbitmqPublisher', 'IRabbitmqConsumer']
-    }),
-    __metadata("design:paramtypes", [rabbitmq_connection_1.RabbitmqConnection])
-], RabbitmqModule);
+        providers: [],
+        exports: [nestjs_rabbitmq_1.RabbitMQModule]
+    })
+], RabbitModule);
 //# sourceMappingURL=rabbitmq.module.js.map

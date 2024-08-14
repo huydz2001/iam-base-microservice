@@ -47,7 +47,6 @@ async function bootstrap() {
     }
     return next();
   });
-
   PrometheusMetrics.registerMetricsEndpoint(app);
 
   app.useGlobalFilters(new ErrorHandlersFilter());

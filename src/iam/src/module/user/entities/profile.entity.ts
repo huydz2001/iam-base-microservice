@@ -1,4 +1,4 @@
-import { EntityAuditBase } from '../../../../../building-blocks/databases/abstracts/entity_audit_base.abstract';
+import { EntityAuditBase } from 'building-blocks/databases/abstracts/entity_audit_base.abstract';
 import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 

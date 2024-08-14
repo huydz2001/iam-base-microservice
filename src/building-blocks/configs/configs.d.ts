@@ -8,6 +8,7 @@ declare const _default: {
         username: any;
         password: any;
         exchange: any;
+        uri: any;
     };
     redis: {
         host: any;
@@ -40,6 +41,13 @@ declare const _default: {
     monitoring: {
         jaegerEndpoint: any;
         zipkinEndpoint: any;
+    };
+    mail: {
+        mailHost: any;
+        user: any;
+        pass: any;
+        from: any;
+        otpExpired: any;
     };
 };
 export default _default;

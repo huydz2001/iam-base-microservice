@@ -1,19 +1,13 @@
-import {
-  Body,
-  Controller,
-  HttpStatus,
-  Inject,
-  NotFoundException,
-  Post,
-  Res,
-} from '@nestjs/common';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
-import Joi from 'joi';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import configs from 'building-blocks/configs/configs';
+import { EVENT_AUTH } from 'building-blocks/constants/event.constant';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
+import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IAuthRepository } from '../../../../../data/repositories/auth.repository';
 import { TokenType } from '../../../enums/token-type.enum';
-import { Auth } from '../../../../../common/decorator/auth.decorator';
+import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
 
 export class Logout {
   accessToken: string;
@@ -23,53 +17,40 @@ export class Logout {
   }
 }
 
-const logoutValidations = {
-  params: Joi.object().keys({
-    accessToken: Joi.string().required(),
-  }),
-};
-
-@ApiBearerAuth()
-@ApiTags('Identities')
-@Controller({
-  path: `/identity`,
-  version: '1',
-})
-export class LogoutController {
-  constructor(private readonly commandBus: CommandBus) {}
-
-  @Post('logout')
-  @Auth()
-  public async logout(
-    @Body('accessToken') accessToken: string,
-    @Res() res: Response,
-  ): Promise<void> {
-    await this.commandBus.execute(new Logout({ accessToken: accessToken }));
-
-    res.status(HttpStatus.NO_CONTENT).send(null);
-  }
-}
-
-@CommandHandler(Logout)
-export class LogoutHandler implements ICommandHandler<Logout> {
+@Injectable()
+export class LogoutHandler {
+  private logger = new Logger(LogoutHandler.name);
   constructor(
     @Inject('IAuthRepository') private readonly authRepository: IAuthRepository,
+    private redisCacheService: RedisCacheService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
-  async execute(command: Logout): Promise<string> {
-    await logoutValidations.params.validateAsync(command);
+  @RabbitRPC({
+    exchange: configs.rabbitmq.exchange,
+    routingKey: RoutingKey.MOBILE_BE.LOGOUT,
+    queue: randomQueueName(),
+    queueOptions: { autoDelete: true },
+  })
+  async logout(command: Logout) {
+    try {
+      const token = await this.authRepository.findToken(
+        command.accessToken,
+        TokenType.ACCESS,
+      );
 
-    const token = await this.authRepository.findToken(
-      command.accessToken,
-      TokenType.ACCESS,
-    );
+      if (!token) {
+        throw new NotFoundException('Token not found');
+      }
 
-    if (!token) {
-      throw new NotFoundException('Access Token Not found');
+      const tokenEntity = await this.authRepository.removeToken(token);
+
+      this.eventEmitter.emit(EVENT_AUTH.LOGOUT, tokenEntity.userId);
+
+      return tokenEntity?.userId;
+    } catch (err) {
+      this.logger.error(err.message);
+      return err;
     }
-
-    const tokenEntity = await this.authRepository.removeToken(token);
-
-    return tokenEntity?.userId;
   }
 }

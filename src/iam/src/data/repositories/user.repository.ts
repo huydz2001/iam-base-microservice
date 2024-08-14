@@ -8,6 +8,8 @@ export interface IUserRepository {
 
   updateUser(user: User): Promise<void>;
 
+  updatePass(userId: string, newPass: string): Promise<void>;
+
   findUsers(
     page: number,
     pageSize: number,
@@ -22,6 +24,8 @@ export interface IUserRepository {
 
   findUserByEmail(email: string): Promise<User>;
 
+  findUserByPhone(phone: string): Promise<User>;
+
   findUserById(id: string): Promise<User>;
 
   getAllUsers(): Promise<User[]>;
@@ -35,6 +39,25 @@ export class UserRepository implements IUserRepository {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+
+  async updatePass(userId: string, newPass: string): Promise<void> {
+    await this.userRepository.update(userId, {
+      hashPass: newPass,
+      updatedAt: new Date(),
+    });
+  }
+
+  async findUserByPhone(phone: string): Promise<User> {
+    return await this.userRepository.findOne({
+      where: {
+        phone: phone,
+      },
+      relations: {
+        profile: true,
+      },
+      select: ['id', 'hashPass', 'role'],
+    });
+  }
 
   async findUserByName(name: string): Promise<User> {
     return await this.userRepository.findOne({
@@ -107,8 +130,12 @@ export class UserRepository implements IUserRepository {
   }
 
   async findUserById(id: string): Promise<User> {
-    return await this.userRepository.findOneBy({
-      id: id,
+    return await this.userRepository.findOne({
+      where: { id: id },
+      relations: {
+        profile: true,
+      },
+      select: ['id', 'hashPass', 'role', 'email'],
     });
   }
 

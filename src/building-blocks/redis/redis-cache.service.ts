@@ -94,7 +94,7 @@ export class RedisCacheService implements OnModuleInit {
     return await this.cacheClient.del(key);
   }
 
-  getcache() {
+  getCacheClient() {
     return this.cacheClient;
   }
 }

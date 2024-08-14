@@ -18,5 +18,5 @@ export declare class RedisCacheService implements OnModuleInit {
     setCache(key: string, value: string): Promise<void>;
     getCache(key: string): Promise<string | null>;
     delValue(key: string): Promise<number>;
-    getcache(): Redis;
+    getCacheClient(): Redis;
 }

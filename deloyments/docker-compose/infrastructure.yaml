@@ -1,0 +1,115 @@
+
+version: '3.8'
+
+services:
+  #######################################################
+  #  Postgres
+  #######################################################
+  db_master:
+    container_name: iam_pg_master
+    image: postgres:15.4
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 5432:5432
+    volumes:
+      - ${PWD}/db/master/pgdata:/var/lib/postgresql/data
+    networks:
+      - iam
+    env_file:
+      - .env
+
+  #######################################################
+  #  PgAdmin
+  #######################################################
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: iam_pgadmin
+    env_file: .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - db_master
+    ports:
+      - 5050:80
+    networks:
+      - iam
+    restart: always
+
+  #######################################################
+  #  RabbitMQ
+  #######################################################
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ${PWD}/rmq:/data
+    env_file:
+      - .env
+    networks:
+      - iam
+
+  #######################################################
+  #  Redis
+  #######################################################
+  redis:
+    image: redis:latest
+    container_name: 'iam-redis'
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - iam
+    volumes:
+      - ${PWD}/redis:/data
+
+  #######################################################
+  #  Zipkin
+  #######################################################
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    restart: unless-stopped
+    ports:
+      - '9411:9411'
+    networks:
+      - iam
+
+  #######################################################
+  #  jaeger
+  #######################################################
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: jaeger
+    restart: unless-stopped
+    ports:
+      - 5775:5775/udp
+      - 5778:5778
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 9412:9412
+      - 14268:14268
+      - 16686:16686
+    networks:
+      - iam
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  redis-data:
+networks:
+  iam:
+    driver: bridge

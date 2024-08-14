@@ -30,9 +30,7 @@ const envVarsSchema = Joi.object()
     POSTGRES_PORT: Joi.number().default(5432).description('Postgres host'),
     POSTGRES_USERNAME: Joi.string().default('postgres').description('Postgres username'),
     POSTGRES_PASSWORD: Joi.string().default('postgres').description('Postgres password'),
-    POSTGRES_Database: Joi.string()
-      .default('default_database')
-      .description('Postgres database name'),
+    POSTGRES_DB: Joi.string().default('default_database').description('Postgres database name'),
     POSTGRES_SYNCHRONIZE: Joi.boolean()
       .default(false)
       .description('Synchronize if true it dosent use migrations'),
@@ -52,6 +50,7 @@ const envVarsSchema = Joi.object()
     RABBITMQ_USERNAME: Joi.string().default('guest').description('Rabbitmq username'),
     RABBITMQ_PASSWORD: Joi.string().default('guest').description('Rabbitmq password'),
     RABBITMQ_EXCHANGE: Joi.string().description('Rabbitmq exchange'),
+    RABBITMQ_URI: Joi.string().description('Rabbitmq uri'),
     RETRY_COUNT: Joi.number().default(3).description('Number of retries'),
     RETRY_FACTOR: Joi.number().default(2).description('Exponential backoff factor'),
     RETRY_MIN_TIMEOUT: Joi.number()
@@ -65,7 +64,12 @@ const envVarsSchema = Joi.object()
       .description('Jaeger Endpoint'),
     MONITORING_ZIPKIN_ENDPOINT: Joi.string()
       .default('http://zipkin-server:9411/api/v2/spans')
-      .description('Zipkin Endpoint')
+      .description('Zipkin Endpoint'),
+    MAIL_HOST: Joi.string().default('smtp.gmail.com').description('Mail host'),
+    MAIL_USER: Joi.string().default('huyydq01@gmail.com').description('Mail user'),
+    MAIL_PASSWORD: Joi.string().description('Mail password'),
+    MAIL_FROM: Joi.string().default('huyydq01@gmail.com').description('Mail from'),
+    OTP_EXPIRED: Joi.number().default(60).description('Otp expired')
   })
   .unknown();
 
@@ -86,7 +90,8 @@ export default {
     port: envVars.RABBITMQ_PORT,
     username: envVars.RABBITMQ_USERNAME,
     password: envVars.RABBITMQ_PASSWORD,
-    exchange: envVars.RABBITMQ_EXCHANGE
+    exchange: envVars.RABBITMQ_EXCHANGE,
+    uri: envVars.RABBITMQ_URI
   },
   redis: {
     host: envVars.REDIS_HOST,
@@ -119,5 +124,12 @@ export default {
   monitoring: {
     jaegerEndpoint: envVars.MONITORING_JAEGER_ENDPOINT,
     zipkinEndpoint: envVars.MONITORING_ZIPKIN_ENDPOINT
+  },
+  mail: {
+    mailHost: envVars.MAIL_HOST,
+    user: envVars.MAIL_USER,
+    pass: envVars.MAIL_PASSWORD,
+    from: envVars.MAIL_FROM,
+    otpExpired: envVars.OTP_EXPIRED
   }
 };

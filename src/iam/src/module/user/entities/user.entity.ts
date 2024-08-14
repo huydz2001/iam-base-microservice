@@ -7,7 +7,7 @@ import {
   ManyToMany,
   OneToOne,
 } from 'typeorm';
-import { EntityAuditBase } from '../../../../../building-blocks/databases/abstracts/entity_audit_base.abstract';
+import { EntityAuditBase } from 'building-blocks/databases/abstracts/entity_audit_base.abstract';
 import { Permission } from '../../../module/permission/entities/permission.entity';
 import { Token } from '../../auth/entities/token.entity';
 import { Group } from '../../group/entities/group.entity';

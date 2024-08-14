@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { IRabbitmqPublisher } from 'building-blocks/rabbitmq/interfaces/rabbitmq-publisher.interface';
 import Joi from 'joi';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
@@ -61,8 +60,6 @@ export class DeleteGroupByIdHandler
   implements ICommandHandler<DeleteGroupById>
 {
   constructor(
-    @Inject('IRabbitmqPublisher')
-    private readonly rabbitmqPublisher: IRabbitmqPublisher,
     @Inject('IGroupRepository')
     private readonly groupRepository: IGroupRepository,
   ) {}

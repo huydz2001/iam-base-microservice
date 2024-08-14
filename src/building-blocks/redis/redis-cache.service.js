@@ -88,7 +88,7 @@ let RedisCacheService = class RedisCacheService {
     async delValue(key) {
         return await this.cacheClient.del(key);
     }
-    getcache() {
+    getCacheClient() {
         return this.cacheClient;
     }
 };

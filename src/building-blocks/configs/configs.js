@@ -32,9 +32,7 @@ const envVarsSchema = joi_1.default.object()
     POSTGRES_PORT: joi_1.default.number().default(5432).description('Postgres host'),
     POSTGRES_USERNAME: joi_1.default.string().default('postgres').description('Postgres username'),
     POSTGRES_PASSWORD: joi_1.default.string().default('postgres').description('Postgres password'),
-    POSTGRES_Database: joi_1.default.string()
-        .default('default_database')
-        .description('Postgres database name'),
+    POSTGRES_DB: joi_1.default.string().default('default_database').description('Postgres database name'),
     POSTGRES_SYNCHRONIZE: joi_1.default.boolean()
         .default(false)
         .description('Synchronize if true it dosent use migrations'),
@@ -54,6 +52,7 @@ const envVarsSchema = joi_1.default.object()
     RABBITMQ_USERNAME: joi_1.default.string().default('guest').description('Rabbitmq username'),
     RABBITMQ_PASSWORD: joi_1.default.string().default('guest').description('Rabbitmq password'),
     RABBITMQ_EXCHANGE: joi_1.default.string().description('Rabbitmq exchange'),
+    RABBITMQ_URI: joi_1.default.string().description('Rabbitmq uri'),
     RETRY_COUNT: joi_1.default.number().default(3).description('Number of retries'),
     RETRY_FACTOR: joi_1.default.number().default(2).description('Exponential backoff factor'),
     RETRY_MIN_TIMEOUT: joi_1.default.number()
@@ -67,7 +66,12 @@ const envVarsSchema = joi_1.default.object()
         .description('Jaeger Endpoint'),
     MONITORING_ZIPKIN_ENDPOINT: joi_1.default.string()
         .default('http://zipkin-server:9411/api/v2/spans')
-        .description('Zipkin Endpoint')
+        .description('Zipkin Endpoint'),
+    MAIL_HOST: joi_1.default.string().default('smtp.gmail.com').description('Mail host'),
+    MAIL_USER: joi_1.default.string().default('huyydq01@gmail.com').description('Mail user'),
+    MAIL_PASSWORD: joi_1.default.string().description('Mail password'),
+    MAIL_FROM: joi_1.default.string().default('huyydq01@gmail.com').description('Mail from'),
+    OTP_EXPIRED: joi_1.default.number().default(60).description('Otp expired')
 })
     .unknown();
 const { value: envVars, error } = envVarsSchema
@@ -85,7 +89,8 @@ exports.default = {
         port: envVars.RABBITMQ_PORT,
         username: envVars.RABBITMQ_USERNAME,
         password: envVars.RABBITMQ_PASSWORD,
-        exchange: envVars.RABBITMQ_EXCHANGE
+        exchange: envVars.RABBITMQ_EXCHANGE,
+        uri: envVars.RABBITMQ_URI
     },
     redis: {
         host: envVars.REDIS_HOST,
@@ -118,6 +123,13 @@ exports.default = {
     monitoring: {
         jaegerEndpoint: envVars.MONITORING_JAEGER_ENDPOINT,
         zipkinEndpoint: envVars.MONITORING_ZIPKIN_ENDPOINT
+    },
+    mail: {
+        mailHost: envVars.MAIL_HOST,
+        user: envVars.MAIL_USER,
+        pass: envVars.MAIL_PASSWORD,
+        from: envVars.MAIL_FROM,
+        otpExpired: envVars.OTP_EXPIRED
     }
 };
 //# sourceMappingURL=configs.js.map

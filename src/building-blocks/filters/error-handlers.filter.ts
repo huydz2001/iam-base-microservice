@@ -4,6 +4,7 @@ import {
   Catch,
   ConflictException,
   ExceptionFilter,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Logger,
@@ -13,13 +14,15 @@ import {
 import { Response } from 'express';
 import { ProblemDocument } from 'http-problem-details';
 import { ValidationError } from 'joi';
+import { LoggersService } from '../loggers/logger.service';
 import { ApplicationException } from '../types/exceptions/application.exception';
-import { serializeObject } from '../utils/serilization';
 import HttpClientException from '../types/exceptions/http-client.exception';
+import { serializeObject } from '../utils/serilization';
 
 @Catch()
 export class ErrorHandlersFilter implements ExceptionFilter {
   private readonly logger = new Logger(ErrorHandlersFilter.name);
+  private readonly loggerService = new LoggersService();
   catch(err: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -77,6 +80,16 @@ export class ErrorHandlersFilter implements ExceptionFilter {
       );
       statusCode = HttpStatus.NOT_FOUND;
     }
+    // ForbidenException
+    else if (err.constructor.name == 'ForbiddenException') {
+      problem = this.createProblemDocument(
+        ForbiddenException.name,
+        err.message,
+        err.stack,
+        err.getStatus()
+      );
+      statusCode = HttpStatus.FORBIDDEN;
+    }
     // HttpClientException
     else if (err instanceof HttpClientException) {
       problem = this.createProblemDocument(
@@ -87,7 +100,6 @@ export class ErrorHandlersFilter implements ExceptionFilter {
       );
       statusCode = HttpStatus.CONFLICT;
     }
-
     // HttpException
     else if (err.constructor.name == 'HttpException') {
       problem = this.createProblemDocument(

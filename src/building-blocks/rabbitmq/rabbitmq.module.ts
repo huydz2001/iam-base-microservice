@@ -1,38 +1,25 @@
-import { DynamicModule, Global, Module, OnApplicationShutdown } from '@nestjs/common';
-import { OpenTelemetryModule } from '../openTelemetry/open-telemetry.module';
-import { RabbitmqConnection, RabbitmqOptions } from './rabbitmq-connection';
-import { RabbitmqPublisher } from './rabbitmq-publisher';
-import { RabbitmqConsumer } from './rabitmq-subscriber';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { Global, Module } from '@nestjs/common';
+import configs from '../configs/configs';
 
 @Global()
 @Module({
-  imports: [OpenTelemetryModule.forRoot()],
-  providers: [
-    {
-      provide: 'IRabbitmqConnection',
-      useClass: RabbitmqConnection
-    },
-    {
-      provide: 'IRabbitmqPublisher',
-      useClass: RabbitmqPublisher
-    },
-    {
-      provide: 'IRabbitmqConsumer',
-      useClass: RabbitmqConsumer
-    }
+  controllers: [],
+  imports: [
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: configs.rabbitmq.exchange,
+          type: 'topic'
+        }
+      ],
+      uri: configs.rabbitmq.uri,
+      connectionInitOptions: { wait: false },
+      enableControllerDiscovery: true
+    }),
+    RabbitModule
   ],
-  exports: ['IRabbitmqConnection', 'IRabbitmqPublisher', 'IRabbitmqConsumer']
+  providers: [],
+  exports: [RabbitMQModule]
 })
-export class RabbitmqModule implements OnApplicationShutdown {
-  constructor(private readonly rabbitmqConnection: RabbitmqConnection) {}
-  async onApplicationShutdown() {
-    await this.rabbitmqConnection.closeConnection();
-  }
-
-  static forRoot(options?: RabbitmqOptions): DynamicModule {
-    return {
-      module: RabbitmqModule,
-      providers: [RabbitmqConnection, { provide: RabbitmqOptions, useValue: options }]
-    };
-  }
-}
+export class RabbitModule {}

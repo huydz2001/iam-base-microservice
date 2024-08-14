@@ -1,12 +1,11 @@
 import {
   Body,
+  ConflictException,
   Controller,
-  HttpStatus,
   Inject,
   NotFoundException,
   Param,
   Put,
-  Res,
 } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
@@ -18,12 +17,11 @@ import {
 import { HttpContext } from 'building-blocks/context/context';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { Response } from 'express';
+import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { IModuleRepository } from '../../../../../data/repositories/module.repository';
 import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
 import { Modules } from '../../../../../module/menu/entities/module.entity';
 import mapper from '../../../../../module/menu/mapping';
-import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 
 // =================================== Caommand ==========================================
 export class UpdateModule {
@@ -50,7 +48,6 @@ export class UpdateModuleRequestDto {
   desc: string;
 
   @ApiProperty()
-  @IsString()
   parentId: string;
 
   constructor(item: Partial<UpdateModuleRequestDto> = {}) {
@@ -70,14 +67,13 @@ export class UpdateModuleController {
 
   @Put('update/:id')
   @AdminAuth()
-  async createModule(
+  async updateModule(
     @Param('id') id: string,
     @Body() request: UpdateModuleRequestDto,
-    @Res() res: Response,
   ): Promise<void> {
     const { name, desc, parentId } = request;
 
-    await this.commandBus.execute(
+    const result = await this.commandBus.execute(
       new UpdateModule({
         id: id,
         name: name,
@@ -86,7 +82,7 @@ export class UpdateModuleController {
       }),
     );
 
-    res.status(HttpStatus.NO_CONTENT).send(null);
+    return result;
   }
 }
 
@@ -103,22 +99,21 @@ export class UpdateModuleHandler implements ICommandHandler<UpdateModule> {
     const { id, name, parentId, desc } = command;
     const userId = HttpContext.request.user['id'].toString() ?? '99';
 
-    const existModule = await this.moduleRepository.findById(id);
+    let existModule = await this.moduleRepository.findById(id);
     if (!existModule) {
       throw new NotFoundException('Module not found!');
     }
 
-    const existParentModule = await this.moduleRepository.findById(
-      existModule.parentId,
-    );
+    const moduleFilter = await this.moduleRepository.findByName(name);
+    if (moduleFilter && moduleFilter.id !== id) {
+      throw new ConflictException('Module has already exsit!');
+    }
+
+    existModule.name = name;
+    existModule.desc = desc;
+    existModule = this.configData.updateData(existModule, userId);
 
     let parentModule: Modules;
-
-    let module = new Modules({
-      name: name,
-      desc: desc,
-      parentId: parentId,
-    });
 
     if (parentId) {
       parentModule = await this.moduleRepository.findById(parentId);
@@ -126,27 +121,14 @@ export class UpdateModuleHandler implements ICommandHandler<UpdateModule> {
       if (!parentModule) {
         throw new NotFoundException('Parent module not found');
       }
-
-      module = this.configData.createData(module, userId);
-      parentModule.subModules.push(module);
-      existParentModule.subModules = existParentModule.subModules.filter(
-        (item) => item.id !== id,
-      );
-      Promise.all([
-        await this.moduleRepository.updateModule(module),
-        await this.moduleRepository.updateModule(parentModule),
-        await this.moduleRepository.updateModule(existParentModule),
-      ]);
+      existModule.parent = parentModule;
+      this.moduleRepository.updateModule(existModule);
     } else {
-      module = this.configData.updateData(module, userId);
-      module.parentId = null;
-      existParentModule.subModules = existParentModule.subModules.filter(
-        (item) => item.id !== id,
-      );
-      this.moduleRepository.updateModule(module);
+      existModule.parentId = null;
+      this.moduleRepository.updateModule(existModule);
     }
 
-    const result = mapper.map<Modules, ModuleDto>(module, new ModuleDto());
+    const result = mapper.map<Modules, ModuleDto>(existModule, new ModuleDto());
 
     return result;
   }

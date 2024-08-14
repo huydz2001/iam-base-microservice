@@ -38,6 +38,7 @@ export declare class UserUpdated implements IEvent {
 }
 export declare enum Role {
     USER = 1,
-    ADMIN = 2,
+    ADMIN = 99,
+    SUB_ADMIN = 2,
     GUEST = 0
 }

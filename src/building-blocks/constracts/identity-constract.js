@@ -22,7 +22,8 @@ exports.UserUpdated = UserUpdated;
 var Role;
 (function (Role) {
     Role[Role["USER"] = 1] = "USER";
-    Role[Role["ADMIN"] = 2] = "ADMIN";
+    Role[Role["ADMIN"] = 99] = "ADMIN";
+    Role[Role["SUB_ADMIN"] = 2] = "SUB_ADMIN";
     Role[Role["GUEST"] = 0] = "GUEST";
 })(Role || (exports.Role = Role = {}));
 //# sourceMappingURL=identity-constract.js.map
