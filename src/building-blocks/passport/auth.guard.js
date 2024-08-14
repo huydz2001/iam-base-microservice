@@ -27,7 +27,7 @@ let AdminGuard = class AdminGuard extends (0, passport_1.AuthGuard)('jwt') {
         const request = context.switchToHttp().getRequest();
         const token = (_a = request.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
         if (!token) {
-            return false;
+            throw new common_1.ForbiddenException(`You don't have permission`);
         }
         try {
             const payload = jsonwebtoken_1.default.verify(token, configs_1.default.jwt.secret);

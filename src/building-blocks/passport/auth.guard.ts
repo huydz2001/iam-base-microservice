@@ -1,4 +1,10 @@
-import { ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  UnauthorizedException
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import configs from '../configs/configs';
 import jwt from 'jsonwebtoken';
@@ -15,7 +21,7 @@ export class AdminGuard extends AuthGuard('jwt') {
     const token = request.headers['authorization']?.split(' ')[1];
 
     if (!token) {
-      return false;
+      throw new ForbiddenException(`You don't have permission`);
     }
 
     try {

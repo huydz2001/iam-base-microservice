@@ -25,6 +25,10 @@ import {
   GetModulesController,
   GetModulesHandler,
 } from './features/v1/get-module/get-module';
+import {
+  UpdateModuleController,
+  UpdateModuleHandler,
+} from './features/v1/update-module/update-module';
 
 @Module({
   imports: [CqrsModule, TypeOrmModule.forFeature([Permission, Modules, Group])],
@@ -34,6 +38,7 @@ import {
     GetModulesHandler,
     GetModulesByGroupHandler,
     GetModulesByUserHandler,
+    UpdateModuleHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',
@@ -53,6 +58,7 @@ import {
     CreateModuleController,
     GetModulesController,
     GetModulesByGroupController,
+    UpdateModuleController,
   ],
 })
 export class MenuModule {}

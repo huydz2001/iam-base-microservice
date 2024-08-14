@@ -7,6 +7,8 @@ export interface IModuleRepository {
 
   findById(id: string): Promise<Modules>;
 
+  findByName(name: string): Promise<Modules>;
+
   findByPermissionsIds(permisisonId: string[]): Promise<Modules[]>;
 
   findModules(): Promise<Modules[]>;
@@ -21,6 +23,13 @@ export class ModuleRepository implements IModuleRepository {
     @InjectRepository(Modules)
     private readonly moduleRepository: Repository<Modules>,
   ) {}
+
+  async findByName(name: string): Promise<Modules> {
+    return await this.moduleRepository.findOne({
+      where: { name: name, isDeleted: false },
+      relations: { permisions: true },
+    });
+  }
 
   async findByPermissionsIds(ids: string[]): Promise<Modules[]> {
     const modules = await this.moduleRepository.find({
@@ -111,7 +120,6 @@ export class ModuleRepository implements IModuleRepository {
   async findById(id: string): Promise<Modules> {
     return await this.moduleRepository.findOne({
       where: { id: id, isDeleted: false },
-      relations: { permisions: true },
     });
   }
 
