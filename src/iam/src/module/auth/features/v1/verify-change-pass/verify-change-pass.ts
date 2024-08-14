@@ -7,11 +7,11 @@ import { EVENT_AUTH } from 'building-blocks/constants/event.constant';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
+import { encryptPassword } from 'building-blocks/utils/encryption';
 import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { DataSource } from 'typeorm';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 import { GenerateToken } from '../generate-token/generate-token';
-import { encryptPassword } from 'building-blocks/utils/encryption';
 
 export class VerifyOtp {
   otp: string;
@@ -45,9 +45,15 @@ export class VerifyOtpChangePassHandler {
     try {
       const { userId, newPass } = payload;
 
+      const userLogin = await this.redisCacheService.getCache('userLogin');
+
       const passHash = await encryptPassword(newPass);
 
-      await this.userRepository.updatePass(userId, passHash);
+      await this.userRepository.updatePass(
+        userId,
+        passHash,
+        JSON.parse(userLogin),
+      );
 
       const user = await this.userRepository.findUserById(userId);
 

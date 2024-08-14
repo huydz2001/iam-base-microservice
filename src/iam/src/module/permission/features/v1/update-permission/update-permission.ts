@@ -1,12 +1,10 @@
 import {
   Body,
   Controller,
-  HttpStatus,
   Inject,
   NotFoundException,
   Param,
   Post,
-  Res,
 } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
@@ -18,7 +16,6 @@ import {
 import { HttpContext } from 'building-blocks/context/context';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { IsOptional } from 'class-validator';
-import { Response } from 'express';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { IModuleRepository } from '../../../../../data/repositories/module.repository';
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
@@ -112,7 +109,7 @@ export class UpdatePermissionHandler
       desc: desc,
     });
 
-    const userId = HttpContext.request?.user?.['id'] ?? '99';
+    const userId = HttpContext.request?.user?.['id'];
 
     permission = this.configData.createData(permission, userId);
     permission.module = module;

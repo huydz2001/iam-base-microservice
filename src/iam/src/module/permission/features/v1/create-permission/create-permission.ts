@@ -113,7 +113,7 @@ export class CreatePermissionHandler
       desc: desc,
     });
 
-    const userId = HttpContext.request?.user?.['id'] ?? '99';
+    const userId = HttpContext.request?.user?.['id'];
 
     permission = this.configData.createData(permission, userId);
     permission.module = module;

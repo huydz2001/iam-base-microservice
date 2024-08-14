@@ -126,7 +126,7 @@ export class UpdateGroupHandler implements ICommandHandler<UpdateGroup> {
 
   async execute(command: UpdateGroup): Promise<GroupDto> {
     const { id, name, desc, userIds, permissionIds, type } = command;
-    const userId = HttpContext.request.user?.['id'].toString() ?? '99';
+    const userId = HttpContext.request.user?.['id'].toString();
     let users: User[] = [];
     let permissions: Permission[] = [];
 

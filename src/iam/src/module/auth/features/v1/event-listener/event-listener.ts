@@ -28,6 +28,12 @@ export class HandleEventListener {
         JSON.stringify(token.refresh),
         expiredRefresh,
       ),
+
+      await this.redisCacheService.setCacheExpried(
+        `userLogin`,
+        JSON.stringify(userId),
+        expiredRefresh,
+      ),
     ]);
   }
 

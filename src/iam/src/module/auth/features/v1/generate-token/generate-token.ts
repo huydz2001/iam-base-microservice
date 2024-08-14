@@ -9,6 +9,7 @@ import { Role } from '../../../../../module/user/enums/role.enum';
 import { AuthDto } from '../../../dtos/auth.dto';
 import { Token } from '../../../entities/token.entity';
 import { TokenType } from '../../../enums/token-type.enum';
+import { IUserRepository } from '../../../../../data/repositories/user.repository';
 
 export class GenerateToken {
   userId: string;
@@ -47,6 +48,7 @@ const generateJwtToken = (
 export class GenerateTokenHandler implements ICommandHandler<GenerateToken> {
   constructor(
     @Inject('IAuthRepository') private readonly authRepository: IAuthRepository,
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
   ) {}
 
   async execute(command: GenerateToken): Promise<AuthDto> {
@@ -85,6 +87,14 @@ export class GenerateTokenHandler implements ICommandHandler<GenerateToken> {
         userId: command.userId,
       }),
     );
+
+    const respToken = await this.authRepository.findTokenByUserId(
+      accessToken,
+      command.userId,
+      false,
+    );
+
+    await this.userRepository.updateLoginToken(command.userId, respToken);
 
     const result = {
       access: {

@@ -8,6 +8,7 @@ import { ErrorHandlersFilter } from 'building-blocks/filters/error-handlers.filt
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { LoggerInterceptor } from 'building-blocks/interceptors/logger.interceptor';
 import { ResponseInterceptor } from 'building-blocks/interceptors/response.interceptor';
+import { ErrorsInterceptor } from 'building-blocks/interceptors/error.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,7 +26,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(
     new LoggerInterceptor(),
-    // new ErrorsInterceptor(),
+    new ErrorsInterceptor(),
     new ResponseInterceptor(),
   );
 

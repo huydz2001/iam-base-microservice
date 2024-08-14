@@ -1,22 +1,15 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import {
-  Body,
-  Controller,
-  HttpStatus,
-  Logger,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import {
   handleRpcError,
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
-import { Response } from 'express';
+import { Auth } from '../../../../../common/decorator/auth.decorator';
 import { Role } from '../../../enums/role.enum';
-import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 
 export class CreateUser {
   email: string;
@@ -69,9 +62,9 @@ export class CreateUserController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('create')
+  @Auth()
   public async createUser(
     @Body() request: CreateUserRequestDto,
-    @Res() res: Response,
   ): Promise<string> {
     const otp = await this.commandBus.execute(
       new CreateUser({
@@ -84,8 +77,6 @@ export class CreateUserController {
         role: request.role,
       }),
     );
-
-    res.status(HttpStatus.CREATED).send({ otp: otp });
 
     return otp;
   }

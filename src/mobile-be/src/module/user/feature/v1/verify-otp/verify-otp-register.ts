@@ -16,6 +16,7 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { Auth } from '../../../../../common/decorator/auth.decorator';
 
 export class VerifyOtp {
   otp: string;
@@ -48,6 +49,7 @@ export class VerifyOtpController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('verify-otp')
+  @Auth()
   public async createUser(@Body() request: VerifyOtpRequestDto): Promise<any> {
     const result = await this.commandBus.execute(
       new VerifyOtp({

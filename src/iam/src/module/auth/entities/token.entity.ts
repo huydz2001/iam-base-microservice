@@ -30,7 +30,7 @@ export class Token extends EntityBase<string> {
   createdAt: Date;
 
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
-  @OneToOne(() => User, (u) => u.token, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, (u) => u.token)
   user: User;
 
   constructor(item: Partial<Token>) {

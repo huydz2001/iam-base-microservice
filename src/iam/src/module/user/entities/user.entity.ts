@@ -63,8 +63,8 @@ export class User extends EntityAuditBase<string> {
     referencedColumnName: 'id',
   })
   @OneToOne(() => Token, (t) => t.user, {
-    onDelete: 'CASCADE',
-    cascade: true,
+    nullable: true,
+    onDelete: 'SET NULL',
   })
   token: Token;
 

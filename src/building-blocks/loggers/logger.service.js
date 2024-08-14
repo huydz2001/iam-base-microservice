@@ -38,9 +38,8 @@ let LoggersService = class LoggersService {
         this.logger.info(` ${message}${payloadOpt ? '\n' + JSON.stringify(payloadOpt) : ''}`);
     }
     logError(error, options) {
-        var _a;
         const { message, stack, response } = error;
-        this.logger.error(`==============\n${options || message}\n${stack}\n${((_a = response === null || response === void 0 ? void 0 : response.data) === null || _a === void 0 ? void 0 : _a.message) || response}`);
+        this.logger.error(`==============\n${options || message}\n${stack}\n${(response === null || response === void 0 ? void 0 : response.message) || response}`);
     }
     logErrorTitle(title) {
         this.logger.error(`==============Error: ${title}`);

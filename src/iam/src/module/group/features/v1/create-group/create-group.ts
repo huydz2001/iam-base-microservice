@@ -120,7 +120,7 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroup> {
 
   async execute(command: CreateGroup): Promise<GroupDto> {
     const { name, desc, userIds, permissionIds, type } = command;
-    const userId = HttpContext.request.user?.['id'].toString() ?? '99';
+    const userId = HttpContext.request.user?.['id'].toString();
     let users: User[] = [];
     let permissions: Permission[] = [];
 
