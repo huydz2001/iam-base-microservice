@@ -8,6 +8,8 @@ export interface IUserRepository {
 
   updateUser(user: User): Promise<void>;
 
+  updatePass(userId: string, newPass: string): Promise<void>;
+
   findUsers(
     page: number,
     pageSize: number,
@@ -37,6 +39,12 @@ export class UserRepository implements IUserRepository {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+
+  async updatePass(userId: string, newPass: string): Promise<void> {
+    await this.userRepository.update(userId, {
+      hashPass: newPass,
+    });
+  }
 
   async findUserByPhone(phone: string): Promise<User> {
     return await this.userRepository.findOne({

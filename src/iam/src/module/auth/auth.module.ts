@@ -20,6 +20,8 @@ import { CheckTokenHandler } from './features/v1/check-jwt/check-jwt';
 import { ChangePassHandler } from './features/v1/change-pass/change-pass';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import configs from 'building-blocks/configs/configs';
+import { VerifyOtpChangePassHandler } from './features/v1/verify-change-pass/verify-change-pass';
+import { ConfigData } from 'building-blocks/databases/config/config-data';
 
 @Module({
   imports: [
@@ -37,7 +39,7 @@ import configs from 'building-blocks/configs/configs';
       connectionInitOptions: { wait: false },
     }),
   ],
-  exports: [ChangePassHandler],
+  exports: [ChangePassHandler, VerifyOtpChangePassHandler],
   providers: [
     ValidateTokenHandler,
     RefreshTokenHandler,
@@ -47,6 +49,8 @@ import configs from 'building-blocks/configs/configs';
     HandleEventListener,
     CheckTokenHandler,
     ChangePassHandler,
+    VerifyOtpChangePassHandler,
+    ConfigData,
     {
       provide: 'IAuthRepository',
       useClass: AuthRepository,
