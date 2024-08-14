@@ -15,6 +15,8 @@ const handleRpcError = (response) => {
             throw new common_1.ForbiddenException(message);
         case 'UnauthorizedException':
             throw new common_1.UnauthorizedException(message);
+        case 'ConflictException':
+            throw new common_1.ConflictException(message);
         case 'BadRequestException':
             throw new common_1.BadRequestException(message);
         case 'NotFoundException':

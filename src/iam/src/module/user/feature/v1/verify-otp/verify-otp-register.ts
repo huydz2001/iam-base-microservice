@@ -5,6 +5,7 @@ import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { HttpContext } from 'building-blocks/context/context';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
+import { encryptPassword } from 'building-blocks/utils/encryption';
 import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { DataSource, QueryRunner } from 'typeorm';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
@@ -13,12 +14,10 @@ import { IProfileRepository } from '../../../../../data/repositories/profile.rep
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 import { Group } from '../../../../group/entities/group.entity';
 import { Permission } from '../../../../permission/entities/permission.entity';
-import { TYPE_ACTION } from '../../../../permission/enums/type-action.enum';
+import { UserDto } from '../../../dtos/user-dto';
 import { Profile } from '../../../entities/profile.entity';
 import { User } from '../../../entities/user.entity';
 import mapper from '../../../mapping';
-import { UserDto } from '../../../dtos/user-dto';
-import { encryptPassword } from 'building-blocks/utils/encryption';
 
 export class VerifyOtp {
   otp: string;
@@ -67,12 +66,11 @@ export class VerifyOtpRegisterHandler {
       groups = await this.groupRepository.findGroupByIds(groupIds);
     }
 
-    permissions = await this.permissionRepository.findByType(TYPE_ACTION.VIEW);
-
     if (permissionIds.length > 0) {
-      const permissionsFilter =
-        await this.permissionRepository.findByIds(permissionIds);
-      permissions = [...new Set([...permissions, ...permissionsFilter])];
+      permissions = await this.permissionRepository.findByIds(permissionIds);
+      const permissionsByGroups =
+        await this.permissionRepository.findByGroupIds(groupIds);
+      permissions = [...new Set([...permissions, ...permissionsByGroups])];
     }
 
     await queryRunner.startTransaction();

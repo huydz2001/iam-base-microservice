@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   CallHandler,
+  ConflictException,
   ExecutionContext,
   ForbiddenException,
   HttpStatus,
@@ -77,6 +78,8 @@ export class ErrorsInterceptor implements NestInterceptor {
             return throwError(() => new BadRequestException(message));
           case HttpStatus.UNAUTHORIZED:
             return throwError(() => new UnauthorizedException(message));
+          case HttpStatus.CONFLICT:
+            return throwError(() => new ConflictException(message));
           case HttpStatus.FORBIDDEN:
             return throwError(() => new ForbiddenException(message));
           case HttpStatus.NOT_FOUND:

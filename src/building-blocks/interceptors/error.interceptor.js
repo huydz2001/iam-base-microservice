@@ -65,6 +65,8 @@ let ErrorsInterceptor = class ErrorsInterceptor {
                     return (0, rxjs_1.throwError)(() => new common_1.BadRequestException(message));
                 case common_1.HttpStatus.UNAUTHORIZED:
                     return (0, rxjs_1.throwError)(() => new common_1.UnauthorizedException(message));
+                case common_1.HttpStatus.CONFLICT:
+                    return (0, rxjs_1.throwError)(() => new common_1.ConflictException(message));
                 case common_1.HttpStatus.FORBIDDEN:
                     return (0, rxjs_1.throwError)(() => new common_1.ForbiddenException(message));
                 case common_1.HttpStatus.NOT_FOUND:

@@ -29,9 +29,14 @@ import {
   UpdateModuleController,
   UpdateModuleHandler,
 } from './features/v1/update-module/update-module';
+import { UserRepository } from '../../data/repositories/user.repository';
+import { User } from '../user/entities/user.entity';
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([Permission, Modules, Group])],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([Permission, Modules, Group, User]),
+  ],
   exports: [],
   providers: [
     CreateModuleHandler,
@@ -51,6 +56,10 @@ import {
     {
       provide: 'IModuleRepository',
       useClass: ModuleRepository,
+    },
+    {
+      provide: 'IUserRepository',
+      useClass: UserRepository,
     },
   ],
   controllers: [

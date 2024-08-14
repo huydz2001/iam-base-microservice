@@ -32,7 +32,8 @@ let AdminGuard = class AdminGuard extends (0, passport_1.AuthGuard)('jwt') {
         try {
             const payload = jsonwebtoken_1.default.verify(token, configs_1.default.jwt.secret);
             request.user = payload;
-            if ((payload === null || payload === void 0 ? void 0 : payload['role']) !== identity_constract_1.Role.ADMIN) {
+            const arrAdmin = [identity_constract_1.Role.ADMIN, identity_constract_1.Role.SUB_ADMIN];
+            if (!arrAdmin.includes(payload === null || payload === void 0 ? void 0 : payload['role'])) {
                 throw new common_1.UnauthorizedException('Access dined!');
             }
             return super.canActivate(context);

@@ -1,10 +1,17 @@
-import { Controller, Get, Inject, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { ICommandHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { IModuleRepository } from '../../../../../data/repositories/module.repository';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
+import { Auth } from '../../../../../common/decorator/auth.decorator';
 
 // =================================== Caommand ==========================================
 export class GetModulesByGroup {
@@ -26,6 +33,7 @@ export class GetModulesByGroupController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @Get('get-by-group')
+  @Auth()
   async getModules(@Query('id') id: string): Promise<any[]> {
     const result = await this.queryBus.execute(new GetModulesByGroup({ id }));
 
@@ -50,6 +58,12 @@ export class GetModulesByGroupHandler
 
   async execute(query: GetModulesByGroup): Promise<any[]> {
     const { id } = query;
+
+    const existGroup = await this.groupRepository.findGroupById(id);
+    if (!existGroup) {
+      throw new NotFoundException('Group not found');
+    }
+
     const permissions = await this.permissionRepository.findByGroupId(id);
 
     const permissionIds = permissions.map((item) => {

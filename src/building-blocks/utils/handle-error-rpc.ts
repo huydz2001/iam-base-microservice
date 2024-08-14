@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   HttpException,
   HttpStatus,
@@ -25,6 +26,9 @@ export const handleRpcError = (response: ReponseDto) => {
 
     case 'UnauthorizedException':
       throw new UnauthorizedException(message);
+
+    case 'ConflictException':
+      throw new ConflictException(message);
 
     case 'BadRequestException':
       throw new BadRequestException(message);

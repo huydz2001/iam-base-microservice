@@ -49,7 +49,9 @@ export class CheckTokenHandler {
     try {
       const decodeToken = await this.validateToken(payload.accessToken);
 
-      if (decodeToken['role'] != Role.ADMIN) {
+      const arrAdmin = [Role.ADMIN, Role.SUB_ADMIN];
+
+      if (!arrAdmin.includes(decodeToken['role'])) {
         throw new ForbiddenException('You have no permission');
       }
 

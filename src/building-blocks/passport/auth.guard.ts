@@ -27,7 +27,8 @@ export class AdminGuard extends AuthGuard('jwt') {
     try {
       const payload = jwt.verify(token, configs.jwt.secret);
       request.user = payload;
-      if (payload?.['role'] !== Role.ADMIN) {
+      const arrAdmin = [Role.ADMIN, Role.SUB_ADMIN];
+      if (!arrAdmin.includes(payload?.['role'])) {
         throw new UnauthorizedException('Access dined!');
       }
 

@@ -12,12 +12,12 @@ import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { GroupRepository } from '../../data/repositories/group.repository';
 import { ProfileRepository } from '../../data/repositories/profile.repository';
 import { UserRepository } from '../../data/repositories/user.repository';
+import { VerifyOtpChangePassHandler } from '../auth/features/v1/verify-change-pass/verify-change-pass';
 import { Group } from '../group/entities/group.entity';
 import { Profile } from './entities/profile.entity';
 import { User } from './entities/user.entity';
 import { CreateUserHandler } from './feature/v1/create-user/create-user';
 import { VerifyOtpRegisterHandler } from './feature/v1/verify-otp/verify-otp-register';
-import { VerifyOtpChangePassHandler } from '../auth/features/v1/verify-change-pass/verify-change-pass';
 @Module({
   imports: [
     CqrsModule,
