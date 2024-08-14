@@ -119,10 +119,6 @@ export class CreatePermissionHandler
     permission.module = module;
     await this.permissionReposiotry.createPermission(permission);
 
-    // await this.rabbitmqPublisher.publishMessage(
-    //   new PermissionCreated(permission),
-    // );
-
     const result = mapper.map<Permission, PermissionDto>(
       permission,
       new PermissionDto(),

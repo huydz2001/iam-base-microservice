@@ -23,14 +23,6 @@ export class Mapper extends TypeMapper {
         (dest) => dest.desc,
       )
       .map(
-        (src) => src.permissions,
-        (dest) => dest.permissions,
-      )
-      .map(
-        (src) => src.users,
-        (dest) => dest.users,
-      )
-      .map(
         (src) => src.createdAt,
         (dest) => dest.createdAt,
       )

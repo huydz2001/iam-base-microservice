@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Inject,
   NotFoundException,
   Param,
-  Post,
+  Put,
 } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
@@ -26,6 +28,7 @@ import { Permission } from '../../../entities/permission.entity';
 
 // ==================================================command====================================================
 export class UpdatePermission {
+  id: string;
   type: TYPE_ACTION;
   moduleId: string;
   desc: string;
@@ -62,7 +65,7 @@ export class UdpatePermissionRequestDto {
 export class UpdatePermissionController {
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Post('update/:id')
+  @Put('update/:id')
   @AdminAuth()
   public async updatePermission(
     @Param('id') id: string,
@@ -72,6 +75,7 @@ export class UpdatePermissionController {
 
     const result = await this.commandBus.execute(
       new UpdatePermission({
+        id: id,
         type: type,
         desc: desc,
         moduleId: moduleId,
@@ -96,31 +100,38 @@ export class UpdatePermissionHandler
   ) {}
 
   async execute(command: UpdatePermission): Promise<PermissionDto> {
-    const { moduleId, type, desc } = command;
+    const { id, moduleId, type, desc } = command;
+
+    let existPermission = await this.permissionReposiotry.findById(id);
+    if (!existPermission) {
+      throw new NotFoundException('Permission not found!');
+    }
 
     const module = await this.moduleRepository.findById(moduleId);
     if (!module) {
       throw new NotFoundException('Module not found!');
+    } else if (module.parentId == null) {
+      throw new BadRequestException('Module cannot update permission');
     }
+    const existPermissionFilter =
+      await this.permissionReposiotry.findByTypeAndModuleId(moduleId, type);
 
-    let permission = new Permission({
-      type: type,
-      moduleId: moduleId,
-      desc: desc,
-    });
+    if (existPermissionFilter) {
+      throw new ConflictException('Permission has already exist');
+    }
 
     const userId = HttpContext.request?.user?.['id'];
 
-    permission = this.configData.createData(permission, userId);
-    permission.module = module;
-    await this.permissionReposiotry.createPermission(permission);
+    existPermission.type = type;
+    existPermission.desc = desc;
+    existPermission.moduleId = moduleId;
+    existPermission = this.configData.updateData(existPermission, userId);
+    existPermission.module = module;
 
-    // await this.rabbitmqPublisher.publishMessage(
-    //   new PermissionCreated(permission),
-    // );
+    await this.permissionReposiotry.updatePermission(existPermission);
 
     const result = mapper.map<Permission, PermissionDto>(
-      permission,
+      existPermission,
       new PermissionDto(),
     );
 

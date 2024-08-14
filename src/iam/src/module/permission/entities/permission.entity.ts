@@ -24,7 +24,7 @@ export class Permission extends EntityAuditBase<string> {
   @Column()
   desc: string;
 
-  @ManyToMany(() => Group, (g) => g.permissions)
+  @ManyToMany(() => Group, (g) => g.permissions, { onDelete: 'CASCADE' })
   groups: Group[];
 
   @ManyToMany(() => User, (u) => u.permissions)

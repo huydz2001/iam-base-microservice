@@ -1,11 +1,10 @@
-import { Modules } from '../../../module/menu/entities/module.entity';
 import { TYPE_ACTION } from '../enums/type-action.enum';
 
 export class PermissionDto {
+  id: string;
   type: TYPE_ACTION;
   desc: string;
   moduleId: string;
-  module: Modules;
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;

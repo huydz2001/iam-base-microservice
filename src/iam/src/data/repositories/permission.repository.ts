@@ -14,6 +14,13 @@ export interface IPermissionRepository {
 
   findByIds(ids: string[]): Promise<Permission[]>;
 
+  findByTypeAndModuleId(
+    moduleId: string,
+    type: TYPE_ACTION,
+  ): Promise<Permission>;
+
+  findById(id: string): Promise<Permission>;
+
   findAll(): Promise<Permission[]>;
 
   findByType(type: TYPE_ACTION): Promise<Permission[]>;
@@ -28,6 +35,22 @@ export class PermissionRepository implements IPermissionRepository {
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
   ) {}
+
+  async findByTypeAndModuleId(
+    moduleId: string,
+    type: TYPE_ACTION,
+  ): Promise<Permission> {
+    return await this.permissionRepository.findOne({
+      where: {
+        moduleId: moduleId,
+        type: type,
+      },
+    });
+  }
+
+  async findById(id: string): Promise<Permission> {
+    return await this.permissionRepository.findOne({ where: { id: id } });
+  }
 
   async findByType(type: TYPE_ACTION): Promise<Permission[]> {
     return await this.permissionRepository.find({

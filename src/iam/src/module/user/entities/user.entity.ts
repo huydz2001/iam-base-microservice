@@ -37,7 +37,7 @@ export class User extends EntityAuditBase<string> {
   @Column({ default: false, name: 'is_verify_email' })
   isEmailVerified: boolean;
 
-  @ManyToMany(() => Permission, (p) => p.users)
+  @ManyToMany(() => Permission, (p) => p.users, { onDelete: 'CASCADE' })
   @JoinTable({
     name: 'users_permissions',
     joinColumn: { name: 'user_id', referencedColumnName: 'id' },

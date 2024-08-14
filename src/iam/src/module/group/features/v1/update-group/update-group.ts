@@ -136,7 +136,7 @@ export class UpdateGroupHandler implements ICommandHandler<UpdateGroup> {
     }
 
     const existGroupName = await this.groupRepository.findGroupByName(name);
-    if (existGroupName.id !== id) {
+    if (existGroupName && existGroupName.id !== id) {
       throw new ConflictException('Group name has already exist');
     }
 
@@ -160,6 +160,8 @@ export class UpdateGroupHandler implements ICommandHandler<UpdateGroup> {
     existGroup = this.configData.updateData(existGroup, userId);
 
     await this.groupRepository.updateGroup(existGroup);
+
+    console.log(existGroup);
 
     const result = mapper.map<Group, GroupDto>(existGroup, new GroupDto());
 
