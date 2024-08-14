@@ -43,6 +43,7 @@ export class UserRepository implements IUserRepository {
   async updatePass(userId: string, newPass: string): Promise<void> {
     await this.userRepository.update(userId, {
       hashPass: newPass,
+      updatedAt: new Date(),
     });
   }
 

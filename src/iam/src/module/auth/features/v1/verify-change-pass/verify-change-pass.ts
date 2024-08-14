@@ -11,6 +11,7 @@ import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { DataSource } from 'typeorm';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 import { GenerateToken } from '../generate-token/generate-token';
+import { encryptPassword } from 'building-blocks/utils/encryption';
 
 export class VerifyOtp {
   otp: string;
@@ -44,7 +45,9 @@ export class VerifyOtpChangePassHandler {
     try {
       const { userId, newPass } = payload;
 
-      await this.userRepository.updatePass(userId, newPass);
+      const passHash = await encryptPassword(newPass);
+
+      await this.userRepository.updatePass(userId, passHash);
 
       const user = await this.userRepository.findUserById(userId);
 
