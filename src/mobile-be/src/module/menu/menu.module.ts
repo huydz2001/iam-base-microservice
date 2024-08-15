@@ -16,6 +16,10 @@ import {
   GetModulesHandler,
 } from './feature/v1/get-modules/get-modules';
 import { CheckJwtHandler } from '../auth/feature/v1/check-jwt/check-jwt';
+import {
+  CreateModuleController,
+  CreateModuleHandler,
+} from './feature/v1/create-module/create-module';
 @Module({
   imports: [
     CqrsModule,
@@ -37,11 +41,13 @@ import { CheckJwtHandler } from '../auth/feature/v1/check-jwt/check-jwt';
     GetModulesByUserHandler,
     GetModulesHandler,
     CheckJwtHandler,
+    CreateModuleHandler,
   ],
   controllers: [
     GetModulesByGroupController,
     GetModulesByUserController,
     GetModulesController,
+    CreateModuleController,
   ],
 })
 export class MenuModule {}

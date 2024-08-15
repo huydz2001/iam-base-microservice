@@ -16,7 +16,7 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { AuthDto } from '../../../dtos/auth.dto';
-import { HttpContext } from 'building-blocks/context/context';
+import * as jwt from 'jsonwebtoken';
 
 export class RefreshToken {
   refreshToken: string;
@@ -36,11 +36,9 @@ export class RefreshTokenController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post('refresh-token')
-  public async refreshToken(
-    @Body('refreshToken') refreshToken: string,
-  ): Promise<AuthDto> {
+  public async refreshToken(@Body() request: RefreshToken): Promise<AuthDto> {
     const result = await this.commandBus.execute(
-      new RefreshToken({ refreshToken: refreshToken }),
+      new RefreshToken({ refreshToken: request.refreshToken }),
     );
 
     return result;
@@ -57,14 +55,14 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshToken> {
 
   async execute(command: RefreshToken): Promise<AuthDto> {
     try {
-      const userId = HttpContext.request.user?.['id'];
+      const decodeToken = jwt.decode(command.refreshToken, configs.jwt.secret);
       const existRedisRefresh = await this.redisCacheService.getCache(
-        `refreshToken:${JSON.parse(userId)}`,
+        `refreshToken:${decodeToken['id']}`,
       );
 
       if (
         command.refreshToken !== JSON.parse(existRedisRefresh)?.token ||
-        !userId
+        !decodeToken
       ) {
         throw new BadRequestException(
           'The login session is expired. Please login again!',

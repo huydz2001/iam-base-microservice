@@ -24,7 +24,7 @@ export class Permission extends EntityAuditBase<string> {
   @Column()
   desc: string;
 
-  @ManyToMany(() => Group, (g) => g.permissions, { onDelete: 'CASCADE' })
+  @ManyToMany(() => Group, (g) => g.permissions)
   groups: Group[];
 
   @ManyToMany(() => User, (u) => u.permissions)
@@ -36,7 +36,7 @@ export class Permission extends EntityAuditBase<string> {
   })
   moduleId: string;
 
-  @ManyToOne(() => Modules, (m) => m.permisions)
+  @ManyToOne(() => Modules, (m) => m.permisions, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'module_id',
     referencedColumnName: 'id',

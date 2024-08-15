@@ -22,6 +22,7 @@ export declare const RoutingKey: {
         UPDATE_GROUP: string;
         DEL_GROUP: string;
         GET_GROUPS: string;
+        CREATE_MODULE: string;
         GET_GROUP_BY_ID: string;
         GET_MODULE_BY_USER: string;
         GET_MODULES: string;

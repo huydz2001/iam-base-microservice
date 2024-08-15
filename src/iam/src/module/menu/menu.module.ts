@@ -11,10 +11,11 @@ import { UserRepository } from '../../data/repositories/user.repository';
 import { Group } from '../group/entities/group.entity';
 import { Permission } from '../permission/entities/permission.entity';
 import { User } from '../user/entities/user.entity';
+import { CreateModuleHandler } from './features/v1/create-module/create-module';
 import {
-  CreateModuleController,
-  CreateModuleHandler,
-} from './features/v1/create-module/create-module';
+  DeleteModuleController,
+  DeleteModuleHandler,
+} from './features/v1/delete-module/delete-module';
 import { GetModulesByGroupHandler } from './features/v1/get-module-by-group/get-module-by-group';
 import { GetModulesByUserHandler } from './features/v1/get-module-by-user/get-module-by-user';
 import { GetModulesHandler } from './features/v1/get-module/get-module';
@@ -22,10 +23,6 @@ import {
   UpdateModuleController,
   UpdateModuleHandler,
 } from './features/v1/update-module/update-module';
-import {
-  DeleteModuleController,
-  DeleteModuleHandler,
-} from './features/v1/delete-module/delete-module';
 
 @Module({
   imports: [
@@ -58,10 +55,6 @@ import {
       useClass: UserRepository,
     },
   ],
-  controllers: [
-    CreateModuleController,
-    UpdateModuleController,
-    DeleteModuleController,
-  ],
+  controllers: [UpdateModuleController, DeleteModuleController],
 })
 export class MenuModule {}

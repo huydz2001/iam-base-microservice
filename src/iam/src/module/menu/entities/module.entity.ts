@@ -10,7 +10,10 @@ export class Modules extends EntityAuditBase<string> {
   @Column({ nullable: true })
   desc: string;
 
-  @OneToMany(() => Permission, (p) => p.module, { onDelete: 'CASCADE' })
+  @OneToMany(() => Permission, (p) => p.module, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
   permisions: Permission[];
 
   @JoinColumn({

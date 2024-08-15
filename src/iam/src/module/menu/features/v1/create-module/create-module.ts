@@ -1,35 +1,22 @@
-import {
-  Body,
-  Controller,
-  HttpStatus,
-  Inject,
-  NotFoundException,
-  Post,
-  Res,
-} from '@nestjs/common';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import {
-  ApiBearerAuth,
-  ApiProperty,
-  ApiPropertyOptional,
-  ApiTags,
-} from '@nestjs/swagger';
-import { HttpContext } from 'building-blocks/context/context';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Inject, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import configs from 'building-blocks/configs/configs';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { Response } from 'express';
-import { TYPE_DESC } from '../../../../../module/permission/enums/type-action.enum';
-import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
+import { randomQueueName } from 'building-blocks/utils/random-queue';
+import { DataSource, QueryRunner } from 'typeorm';
 import { IModuleRepository } from '../../../../../data/repositories/module.repository';
 import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
 import { Modules } from '../../../../../module/menu/entities/module.entity';
 import mapper from '../../../../../module/menu/mapping';
 import { Permission } from '../../../../../module/permission/entities/permission.entity';
+import { TYPE_DESC } from '../../../../../module/permission/enums/type-action.enum';
 import { IPermissionRepository } from './../../../../../data/repositories/permission.repository';
-import { DataSource, QueryRunner } from 'typeorm';
 
-// =================================== Caommand ==========================================
+// =================================== Command ==========================================
 export class CreateModule {
+  userIdLogin: string;
   name: string;
   desc: string;
   parentId: string;
@@ -37,64 +24,6 @@ export class CreateModule {
 
   constructor(item: Partial<CreateModule> = {}) {
     Object.assign(this, item);
-  }
-}
-
-// ======================================Request Dto ================================================
-export class CreateModuleRequestDto {
-  @ApiProperty()
-  @IsString()
-  name: string;
-
-  @ApiPropertyOptional()
-  @IsString()
-  @MaxLength(100)
-  @IsOptional()
-  desc: string;
-
-  @ApiProperty()
-  @IsOptional()
-  parentId: string;
-
-  @ApiProperty()
-  @IsOptional()
-  typePermisisons: number[];
-
-  constructor(item: Partial<CreateModuleRequestDto> = {}) {
-    Object.assign(this, item);
-  }
-}
-
-// ====================================== Controller ============================================
-@ApiBearerAuth()
-@ApiTags('Modules')
-@Controller({
-  path: `/module`,
-  version: '1',
-})
-export class CreateModuleController {
-  constructor(private readonly commandBus: CommandBus) {}
-
-  @Post('create')
-  @AdminAuth()
-  async createModule(
-    @Body() request: CreateModuleRequestDto,
-    @Res() res: Response,
-  ): Promise<ModuleDto> {
-    const { name, desc, parentId, typePermisisons } = request;
-
-    const result = await this.commandBus.execute(
-      new CreateModule({
-        name: name,
-        desc: desc,
-        parentId: parentId,
-        typePermissions: typePermisisons,
-      }),
-    );
-
-    res.status(HttpStatus.CREATED).send(result);
-
-    return result;
   }
 }
 
@@ -110,6 +39,12 @@ export class CreateModuleHandler implements ICommandHandler<CreateModule> {
     private readonly dataSource: DataSource,
   ) {}
 
+  @RabbitRPC({
+    exchange: configs.rabbitmq.exchange,
+    routingKey: RoutingKey.MOBILE_BE.CREATE_MODULE,
+    queue: randomQueueName(),
+    queueOptions: { autoDelete: true },
+  })
   async execute(command: CreateModule): Promise<ModuleDto> {
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -117,9 +52,7 @@ export class CreateModuleHandler implements ICommandHandler<CreateModule> {
     await queryRunner.startTransaction();
 
     try {
-      const { name, parentId, desc, typePermissions } = command;
-      const userId = HttpContext.request.user['id'].toString() ?? '99';
-
+      const { name, parentId, desc, typePermissions, userIdLogin } = command;
       let parentModule: Modules;
 
       let module = new Modules({
@@ -135,39 +68,51 @@ export class CreateModuleHandler implements ICommandHandler<CreateModule> {
           throw new NotFoundException('Parent module not found');
         }
 
-        module = this.configData.createData(module, userId);
+        module = this.configData.createData(module, userIdLogin);
         module.parent = parentModule;
-
-        await this.moduleRepository.createModule(module);
+        module.permisions = [];
       } else {
-        module = this.configData.createData(module, userId);
+        module = this.configData.createData(module, userIdLogin);
         module.subModules = [];
-        this.moduleRepository.createModule(module);
+        module.permisions = [];
       }
+
+      module = await queryRunner.manager.save(Modules, module);
 
       const permisisons = [];
       if (typePermissions.length > 0) {
-        typePermissions.forEach((item) => {
+        for (const item of typePermissions) {
           let permission = new Permission({
             type: item,
             moduleId: module.id,
             desc: TYPE_DESC[`${item}`],
           });
-          permission = this.configData.createData(permission, userId);
+          permission = this.configData.createData(permission, userIdLogin);
           permission.module = module;
-          permisisons.push(permisisons);
-        });
+          permisisons.push(permission);
+        }
       }
 
-      await this.permissionRepository.saveAllPermissions(permisisons);
+      if (permisisons.length > 0) {
+        await queryRunner.manager.save(Permission, permisisons);
+      }
+
+      await queryRunner.commitTransaction();
 
       const result = mapper.map<Modules, ModuleDto>(module, new ModuleDto());
+
+      result.permissions = permisisons.map((item) => {
+        return {
+          id: item.id,
+          type: item.type,
+          desc: item.desc,
+        };
+      });
 
       return result;
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      throw err;
+      return err;
     } finally {
       // Release query runner
       await queryRunner.release();

@@ -35,10 +35,6 @@ export class Mapper extends TypeMapper {
         (dest) => dest.subModules,
       )
       .map(
-        (src) => src.parent,
-        (dest) => dest.parent,
-      )
-      .map(
         (src) => src.createdAt,
         (dest) => dest.createdAt,
       )
