@@ -1,5 +1,5 @@
 import { TypeMapper } from 'ts-mapper';
-import { Group } from 'src/module/group/entities/group.entity';
+import { Group } from '../../module/group/entities/group.entity';
 import { GroupDto } from './dtos/group-dto';
 
 export class Mapper extends TypeMapper {

@@ -24,7 +24,6 @@ export class AdminThirtyGuard extends AuthGuard('jwt') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
     const authorization = request.headers?.['authorization'];
-    this.logger.debug(authorization);
     if (authorization) {
       const token = authorization.split(' ')[1];
       try {
@@ -43,7 +42,6 @@ export class AdminThirtyGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err, user) {
-    this.logger.error(err);
     if (err || !user) {
       throw err || new ForbiddenException('Access denied');
     }

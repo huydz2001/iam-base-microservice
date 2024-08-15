@@ -12,18 +12,18 @@ import { PassportModule } from '@nestjs/passport';
 import configs from 'building-blocks/configs/configs';
 import { HttpContextMiddleware } from 'building-blocks/context/context';
 import { ErrorHandlersFilter } from 'building-blocks/filters/error-handlers.filter';
+import { LoggerMiddleware } from 'building-blocks/loggers/logger.middleware';
 import { OpenTelemetryModule } from 'building-blocks/openTelemetry/open-telemetry.module';
+import { AdminThirtyGuard } from 'building-blocks/passport/auth-thirty.guard';
 import { AdminGuard } from 'building-blocks/passport/auth.guard';
 import { JwtThirtyGuard } from 'building-blocks/passport/jwt-thirty.guard';
 import { JwtStrategy } from 'building-blocks/passport/jwt.strategy';
 import { RedisModule } from 'building-blocks/redis/redis.module';
+import * as compression from 'compression';
+import helmet from 'helmet';
+import { GroupModule } from './module/group/group.module';
 import { AuthModule } from './module/auth/auth.module';
 import { UserModule } from './module/user/user.module';
-import { AdminThirtyGuard } from 'building-blocks/passport/auth-thirty.guard';
-import { LoggerMiddleware } from 'building-blocks/loggers/logger.middleware';
-import helmet from 'helmet';
-import * as compression from 'compression';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -51,6 +51,7 @@ import * as compression from 'compression';
     RedisModule.forRoot(),
     UserModule,
     AuthModule,
+    GroupModule,
   ],
   controllers: [],
   providers: [

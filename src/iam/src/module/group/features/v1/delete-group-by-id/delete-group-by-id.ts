@@ -1,18 +1,11 @@
-import {
-  Controller,
-  Delete,
-  Inject,
-  NotFoundException,
-  Query,
-} from '@nestjs/common';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import Joi from 'joi';
-import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Inject, Logger, NotFoundException } from '@nestjs/common';
+import configs from 'building-blocks/configs/configs';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
+import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
 import { GroupDto } from '../../../../../module/group/dtos/group-dto';
 import { Group } from '../../../../../module/group/entities/group.entity';
-import { UserDto } from '../../../../../module/user/dtos/user-dto';
 import mapper from '../../../mapping';
 
 export class DeleteGroupById {
@@ -23,60 +16,36 @@ export class DeleteGroupById {
   }
 }
 
-const deleteGroupValidations = {
-  params: Joi.object().keys({
-    id: Joi.string().required(),
-  }),
-};
-
-@ApiBearerAuth()
-@ApiTags('Groups')
-@Controller({
-  path: `/group`,
-  version: '1',
-})
-export class DeleteGroupByIdController {
-  constructor(private readonly commandBus: CommandBus) {}
-
-  @Delete('delete')
-  @AdminAuth()
-  public async deleteUserById(@Query('id') id: string): Promise<UserDto> {
-    const group = await this.commandBus.execute(
-      new DeleteGroupById({
-        id: id,
-      }),
-    );
-
-    if (!group) {
-      throw new NotFoundException('Group not found');
-    }
-
-    return group;
-  }
-}
-
-@CommandHandler(DeleteGroupById)
-export class DeleteGroupByIdHandler
-  implements ICommandHandler<DeleteGroupById>
-{
+export class DeleteGroupByIdHandler {
+  private logger = new Logger(DeleteGroupByIdHandler.name);
   constructor(
     @Inject('IGroupRepository')
     private readonly groupRepository: IGroupRepository,
   ) {}
 
+  @RabbitRPC({
+    exchange: configs.rabbitmq.exchange,
+    routingKey: RoutingKey.MOBILE_BE.DEL_GROUP,
+    queue: randomQueueName(),
+    queueOptions: { autoDelete: true },
+  })
   async execute(command: DeleteGroupById): Promise<GroupDto> {
-    await deleteGroupValidations.params.validateAsync(command);
+    try {
+      const group = await this.groupRepository.findGroupById(command.id);
 
-    const user = await this.groupRepository.findGroupById(command.id);
+      if (!group) {
+        throw new NotFoundException('Group not found');
+      }
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      const groupEntity = await this.groupRepository.removeGroup(group);
+      groupEntity.id = command.id;
+
+      const result = mapper.map<Group, GroupDto>(groupEntity, new GroupDto());
+
+      return result;
+    } catch (err) {
+      this.logger.error(err.message);
+      return err;
     }
-
-    const groupEntity = await this.groupRepository.removeGroup(user);
-
-    const result = mapper.map<Group, GroupDto>(groupEntity, new GroupDto());
-
-    return result;
   }
 }
