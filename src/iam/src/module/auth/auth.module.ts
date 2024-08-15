@@ -11,10 +11,7 @@ import { HandleEventListener } from './features/v1/event-listener/event-listener
 import { GenerateTokenHandler } from './features/v1/generate-token/generate-token';
 import { LoginHandler } from './features/v1/login/login';
 import { LogoutHandler } from './features/v1/logout/logout';
-import {
-  RefreshTokenController,
-  RefreshTokenHandler,
-} from './features/v1/refresh-token/refresh-token';
+import { RefreshTokenHandler } from './features/v1/refresh-token/refresh-token';
 import { ValidateTokenHandler } from './features/v1/validate-token/validate-token';
 import { CheckTokenHandler } from './features/v1/check-jwt/check-jwt';
 import { ChangePassHandler } from './features/v1/change-pass/change-pass';
@@ -64,6 +61,6 @@ import { ConfigData } from 'building-blocks/databases/config/config-data';
       useClass: ProfileRepository,
     },
   ],
-  controllers: [RefreshTokenController],
+  controllers: [],
 })
 export class AuthModule {}

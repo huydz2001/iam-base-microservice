@@ -32,12 +32,13 @@ let AdminThirtyGuard = AdminThirtyGuard_1 = class AdminThirtyGuard extends (0, p
         var _a;
         const request = context.switchToHttp().getRequest();
         const authorization = (_a = request.headers) === null || _a === void 0 ? void 0 : _a['authorization'];
+        this.logger.debug(authorization);
         if (authorization) {
             const token = authorization.split(' ')[1];
             try {
                 const resp = await this.checkJwtHandler.checkAdminGuard({ accessToken: token });
                 if (!resp) {
-                    throw new common_1.UnauthorizedException('Access denied: Invalid token payload');
+                    throw new common_1.ForbiddenException('Access denied');
                 }
                 return super.canActivate(context);
             }
@@ -49,8 +50,9 @@ let AdminThirtyGuard = AdminThirtyGuard_1 = class AdminThirtyGuard extends (0, p
         return super.canActivate(context);
     }
     handleRequest(err, user) {
+        this.logger.error(err);
         if (err || !user) {
-            throw err || new common_1.UnauthorizedException('Invalid Token');
+            throw err || new common_1.ForbiddenException('Access denied');
         }
         return user;
     }

@@ -1,4 +1,10 @@
-import { ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  UnauthorizedException
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RedisCacheService } from '../redis/redis-cache.service';
 import { CheckJwtHandler } from './../../mobile-be/src/module/auth/feature/v1/check-jwt/check-jwt';
@@ -42,9 +48,8 @@ export class JwtThirtyGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err, user) {
-    // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
-      throw err || new UnauthorizedException('Invalid Token');
+      throw err || new ForbiddenException('Access denied: Invalid Token');
     }
     return user;
   }
