@@ -43,16 +43,14 @@ export class VerifyOtpChangePassHandler {
   })
   private async verifyOtpChangePass(payload: any) {
     try {
-      const { userId, newPass } = payload;
-
-      const userLogin = await this.redisCacheService.getCache('userLogin');
+      const { userId, newPass, userLoginId } = payload;
 
       const passHash = await encryptPassword(newPass);
 
       await this.userRepository.updatePass(
         userId,
         passHash,
-        JSON.parse(userLogin),
+        JSON.parse(userLoginId),
       );
 
       const user = await this.userRepository.findUserById(userId);

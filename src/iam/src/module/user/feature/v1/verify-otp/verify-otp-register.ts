@@ -47,14 +47,19 @@ export class VerifyOtpRegisterHandler {
     queueOptions: { autoDelete: true },
   })
   private async execute(payload: any) {
-    console.log(payload);
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
 
-    const userLogin = await this.redisCacheSevice.getCache(`userLogin`);
-
-    const { email, password, name, permissionIds, groupIds, phone, role } =
-      payload;
+    const {
+      email,
+      password,
+      name,
+      permissionIds,
+      groupIds,
+      phone,
+      role,
+      userLogin,
+    } = payload;
 
     let groups: Group[];
     let permissions: Permission[];

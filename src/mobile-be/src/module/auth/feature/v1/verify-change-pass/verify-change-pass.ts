@@ -17,6 +17,7 @@ import {
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
+import { HttpContext } from 'building-blocks/context/context';
 
 export class VerifyOtp {
   otp: string;
@@ -71,6 +72,8 @@ export class VerifyOtpChangePassHandler implements ICommandHandler<VerifyOtp> {
       `otp-change-pass:${command.userId}`,
     );
 
+    const userLoginId = HttpContext.request.user?.['id'];
+
     if (data) {
       const result = JSON.parse(data);
       const { otp, ...dataChangePass } = result;
@@ -83,7 +86,7 @@ export class VerifyOtpChangePassHandler implements ICommandHandler<VerifyOtp> {
         const resp = await this.amqpConnection.request<any>({
           exchange: configs.rabbitmq.exchange,
           routingKey: RoutingKey.MOBILE_BE.VERIFY_OTP_CHANGE_PASS,
-          payload: dataChangePass,
+          payload: { ...dataChangePass, userLoginId: userLoginId },
           timeout: 10000,
         });
 

@@ -22,6 +22,10 @@ import {
   UpdateModuleController,
   UpdateModuleHandler,
 } from './features/v1/update-module/update-module';
+import {
+  DeleteModuleController,
+  DeleteModuleHandler,
+} from './features/v1/delete-module/delete-module';
 
 @Module({
   imports: [
@@ -35,6 +39,7 @@ import {
     GetModulesByGroupHandler,
     GetModulesByUserHandler,
     UpdateModuleHandler,
+    DeleteModuleHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',
@@ -53,6 +58,10 @@ import {
       useClass: UserRepository,
     },
   ],
-  controllers: [CreateModuleController, UpdateModuleController],
+  controllers: [
+    CreateModuleController,
+    UpdateModuleController,
+    DeleteModuleController,
+  ],
 })
 export class MenuModule {}

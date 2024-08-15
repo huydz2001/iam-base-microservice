@@ -27,6 +27,7 @@ export class UpdateGroup {
   type: string;
   userIds: string[];
   permissionIds: string[];
+  userLoginId: string;
 
   constructor(item: Partial<UpdateGroup> = {}) {
     Object.assign(this, item);
@@ -54,10 +55,9 @@ export class UpdateGroupHandler {
   })
   async execute(command: UpdateGroup): Promise<GroupDto> {
     try {
-      const { id, name, desc, userIds, permissionIds, type } = command;
-      const userId = JSON.parse(
-        await this.redisCacheService.getCache('userLogin'),
-      );
+      const { id, name, desc, userIds, permissionIds, type, userLoginId } =
+        command;
+
       let users: User[] = [];
       let permissions: Permission[] = [];
 
@@ -89,7 +89,7 @@ export class UpdateGroupHandler {
       existGroup.permissions = permissions ?? [];
       existGroup.users = users ?? [];
 
-      existGroup = this.configData.updateData(existGroup, userId);
+      existGroup = this.configData.updateData(existGroup, userLoginId);
 
       await this.groupRepository.updateGroup(existGroup);
 

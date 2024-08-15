@@ -16,6 +16,7 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { AuthDto } from '../../../dtos/auth.dto';
+import { HttpContext } from 'building-blocks/context/context';
 
 export class RefreshToken {
   refreshToken: string;
@@ -56,7 +57,7 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshToken> {
 
   async execute(command: RefreshToken): Promise<AuthDto> {
     try {
-      const userId = await this.redisCacheService.getCache('userLogin');
+      const userId = HttpContext.request.user?.['id'];
       const existRedisRefresh = await this.redisCacheService.getCache(
         `refreshToken:${JSON.parse(userId)}`,
       );

@@ -17,6 +17,7 @@ import { IsOptional, IsString, MaxLength } from 'class-validator';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { GroupDto } from '../../../dtos/group.dto';
 import { TypePermissionCreateGroup } from '../../../enums/type-permission-create-group';
+import { HttpContext } from 'building-blocks/context/context';
 
 // =================================== Command ==========================================
 export class UpdateGroup {
@@ -102,10 +103,11 @@ export class UpdateGroupHandler implements ICommandHandler<UpdateGroup> {
 
   async execute(command: UpdateGroup): Promise<GroupDto> {
     try {
+      const userLoginId = HttpContext.request.user?.['id'];
       const resp = await this.amqpConnection.request<any>({
         exchange: configs.rabbitmq.exchange,
         routingKey: RoutingKey.MOBILE_BE.UPDATE_GROUP,
-        payload: command,
+        payload: { ...command, userLoginId: userLoginId },
         timeout: 10000,
       });
 

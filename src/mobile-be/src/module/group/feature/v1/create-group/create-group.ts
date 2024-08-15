@@ -17,6 +17,7 @@ import { IsOptional, IsString, MaxLength } from 'class-validator';
 import { GroupDto } from '../../../../../module/group/dtos/group.dto';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { TypePermissionCreateGroup } from '../../../enums/type-permission-create-group';
+import { HttpContext } from 'building-blocks/context/context';
 
 // =================================== Command ==========================================
 export class CreateGroup {
@@ -99,10 +100,11 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroup> {
 
   async execute(command: CreateGroup): Promise<GroupDto> {
     try {
+      const userLoginId = HttpContext.request.user?.['id'];
       const resp = await this.amqpConnection.request<any>({
         exchange: configs.rabbitmq.exchange,
         routingKey: RoutingKey.MOBILE_BE.CREATE_GROUP,
-        payload: command,
+        payload: { ...command, userLoginId: userLoginId },
         timeout: 10000,
       });
 

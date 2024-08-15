@@ -3,7 +3,6 @@ import { Inject, Logger } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
-import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
 import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
@@ -21,6 +20,7 @@ export class CreateGroup {
   type: string;
   userIds: string[];
   permissionIds: string[];
+  userLoginId: string;
 
   constructor(item: Partial<CreateGroup> = {}) {
     Object.assign(this, item);
@@ -38,7 +38,6 @@ export class CreateGroupHandler {
     @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
     private readonly configData: ConfigData,
-    private readonly redisCacheService: RedisCacheService,
   ) {}
 
   @RabbitRPC({
@@ -49,10 +48,7 @@ export class CreateGroupHandler {
   })
   async execute(command: CreateGroup): Promise<GroupDto> {
     try {
-      const { name, desc, userIds, permissionIds, type } = command;
-      const userId = JSON.parse(
-        await this.redisCacheService.getCache('userLogin'),
-      );
+      const { name, desc, userIds, permissionIds, type, userLoginId } = command;
       let users: User[] = [];
       let permissions: Permission[] = [];
 
@@ -76,7 +72,7 @@ export class CreateGroupHandler {
         permissions: permissions ?? [],
       });
 
-      group = this.configData.createData(group, userId);
+      group = this.configData.createData(group, userLoginId);
 
       await this.groupRepository.createGroup(group);
 

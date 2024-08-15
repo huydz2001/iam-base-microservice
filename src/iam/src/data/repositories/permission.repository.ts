@@ -6,6 +6,8 @@ import { TYPE_ACTION } from '../../module/permission/enums/type-action.enum';
 export interface IPermissionRepository {
   createPermission(permission: Permission): Promise<Permission>;
 
+  saveAllPermissions(permissions: Permission[]): Promise<Permission[]>;
+
   findByUserId(id: string): Promise<Permission[]>;
 
   findByGroupId(id: string): Promise<Permission[]>;
@@ -35,6 +37,10 @@ export class PermissionRepository implements IPermissionRepository {
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
   ) {}
+
+  async saveAllPermissions(permissions: Permission[]): Promise<Permission[]> {
+    return await this.permissionRepository.save(permissions);
+  }
 
   async findByTypeAndModuleId(
     moduleId: string,

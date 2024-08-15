@@ -17,6 +17,7 @@ import {
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
+import { HttpContext } from 'building-blocks/context/context';
 
 export class VerifyOtp {
   otp: string;
@@ -72,6 +73,8 @@ export class VerifyOtpRegisterHandler implements ICommandHandler<VerifyOtp> {
   async execute(command: VerifyOtp): Promise<any> {
     const data = await this.redisCacheService.getCache(`otp:${command.email}`);
 
+    const userLogin = HttpContext.request.user?.['id'];
+
     if (data) {
       const result = JSON.parse(data);
       const { otp, ...userCreate } = result;
@@ -84,7 +87,7 @@ export class VerifyOtpRegisterHandler implements ICommandHandler<VerifyOtp> {
         const resp = await this.amqpConnection.request<any>({
           exchange: configs.rabbitmq.exchange,
           routingKey: RoutingKey.MOBILE_BE.VERIFY_OTP,
-          payload: userCreate,
+          payload: { ...userCreate, userLogin: userLogin },
           timeout: 10000,
         });
 
