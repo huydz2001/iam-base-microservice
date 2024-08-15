@@ -1,6 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Controller, Get, Logger, Param } from '@nestjs/common';
-import { CommandBus, ICommandHandler, QueryHandler } from '@nestjs/cqrs';
+import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { ICommandHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
@@ -9,51 +9,48 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
-import { GroupDto } from '../../../dtos/group.dto';
 
-// =================================== Command ==========================================
-export class GetGroupById {
+// =================================== Caommand ==========================================
+export class GetModulesByUser {
   id: string;
 
-  constructor(item: Partial<GetGroupById> = {}) {
-    Object.assign(this, item);
+  constructor(request: Partial<GetModulesByUser> = {}) {
+    Object.assign(this, request);
   }
 }
 
 // ====================================== Controller ============================================
 @ApiBearerAuth()
-@ApiTags('Groups')
+@ApiTags('Modules')
 @Controller({
-  path: `/group`,
+  path: `/module`,
   version: '1',
 })
-export class GetGroupByIdController {
-  constructor(private readonly commandBus: CommandBus) {}
+export class GetModulesByUserController {
+  constructor(private readonly queryBus: QueryBus) {}
 
-  @Get('detail/:id')
+  @Get('get-by-user')
   @Auth()
-  async getGroupById(@Param('id') id: string): Promise<GroupDto> {
-    const result = await this.commandBus.execute(
-      new GetGroupById({
-        id: id,
-      }),
-    );
+  async getModules(@Query('id') id: string): Promise<any[]> {
+    const result = await this.queryBus.execute(new GetModulesByUser({ id }));
 
     return result;
   }
 }
 
 // =====================================Command Handler =================================================
-@QueryHandler(GetGroupById)
-export class GetGroupByIdHandler implements ICommandHandler<GetGroupById> {
-  private logger = new Logger(GetGroupByIdHandler.name);
+@QueryHandler(GetModulesByUser)
+export class GetModulesByUserHandler
+  implements ICommandHandler<GetModulesByUser>
+{
+  private logger = new Logger(GetModulesByUserHandler.name);
   constructor(private readonly amqpConnection: AmqpConnection) {}
 
-  async execute(query: GetGroupById): Promise<GroupDto> {
+  async execute(query: GetModulesByUser): Promise<any[]> {
     try {
       const resp = await this.amqpConnection.request<any>({
         exchange: configs.rabbitmq.exchange,
-        routingKey: RoutingKey.MOBILE_BE.GET_GROUP_BY_ID,
+        routingKey: RoutingKey.MOBILE_BE.GET_MODULE_BY_USER,
         payload: query,
         timeout: 10000,
       });

@@ -21,8 +21,9 @@ import { JwtStrategy } from 'building-blocks/passport/jwt.strategy';
 import { RedisModule } from 'building-blocks/redis/redis.module';
 import * as compression from 'compression';
 import helmet from 'helmet';
-import { GroupModule } from './module/group/group.module';
+import { MenuModule } from './module/menu/menu.module';
 import { AuthModule } from './module/auth/auth.module';
+import { GroupModule } from './module/group/group.module';
 import { UserModule } from './module/user/user.module';
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { UserModule } from './module/user/user.module';
     UserModule,
     AuthModule,
     GroupModule,
+    MenuModule,
   ],
   controllers: [],
   providers: [

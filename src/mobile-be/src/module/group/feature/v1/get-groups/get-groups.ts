@@ -1,6 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Controller, Get, Logger } from '@nestjs/common';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandBus, ICommandHandler, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
@@ -47,17 +47,17 @@ export class GetGroupsController {
 }
 
 // =====================================Command Handler =================================================
-@CommandHandler(GetGroups)
+@QueryHandler(GetGroups)
 export class GetGroupsHandler implements ICommandHandler<GetGroups> {
   private logger = new Logger(GetGroupsHandler.name);
   constructor(private readonly amqpConnection: AmqpConnection) {}
 
-  async execute(command: GetGroups): Promise<GroupResponse> {
+  async execute(query: GetGroups): Promise<GroupResponse> {
     try {
       const resp = await this.amqpConnection.request<any>({
         exchange: configs.rabbitmq.exchange,
         routingKey: RoutingKey.MOBILE_BE.GET_GROUPS,
-        payload: command,
+        payload: query,
         timeout: 10000,
       });
 
