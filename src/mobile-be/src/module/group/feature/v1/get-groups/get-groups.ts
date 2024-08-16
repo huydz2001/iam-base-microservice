@@ -1,6 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Controller, Get, Logger } from '@nestjs/common';
-import { CommandBus, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
@@ -35,12 +35,12 @@ export class GetGroups {
   version: '1',
 })
 export class GetGroupsController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
   @Get('')
   @Auth()
   async getGroups(): Promise<GroupResponse> {
-    const result = await this.commandBus.execute(new GetGroups({}));
+    const result = await this.queryBus.execute(new GetGroups({}));
 
     return result;
   }
