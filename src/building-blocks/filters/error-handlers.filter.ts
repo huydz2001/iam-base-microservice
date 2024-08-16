@@ -130,7 +130,10 @@ export class ErrorHandlersFilter implements ExceptionFilter {
       );
     }
 
-    response.status(statusCode).json(problem);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { detail, ...prolem } = problem;
+
+    response.status(statusCode).json(prolem);
     this.logger.error(serializeObject(problem));
   }
 
