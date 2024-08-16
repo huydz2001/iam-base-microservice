@@ -20,6 +20,14 @@ import {
   CreateModuleController,
   CreateModuleHandler,
 } from './feature/v1/create-module/create-module';
+import {
+  UpdateModuleController,
+  UpdateModuleHandler,
+} from './feature/v1/update-module/update-module';
+import {
+  DeleteModuleController,
+  DeleteModuleHandler,
+} from './feature/v1/delete-module/delete-module';
 @Module({
   imports: [
     CqrsModule,
@@ -42,12 +50,16 @@ import {
     GetModulesHandler,
     CheckJwtHandler,
     CreateModuleHandler,
+    UpdateModuleHandler,
+    DeleteModuleHandler,
   ],
   controllers: [
     GetModulesByGroupController,
     GetModulesByUserController,
     GetModulesController,
     CreateModuleController,
+    UpdateModuleController,
+    DeleteModuleController,
   ],
 })
 export class MenuModule {}

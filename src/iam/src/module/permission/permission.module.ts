@@ -10,18 +10,6 @@ import { Modules } from '../menu/entities/module.entity';
 import { Profile } from '../user/entities/profile.entity';
 import { User } from '../user/entities/user.entity';
 import { Permission } from './entities/permission.entity';
-import {
-  CreatePermissionController,
-  CreatePermissionHandler,
-} from './features/v1/create-permission/create-permission';
-import {
-  DeletePermissionController,
-  DeletePermissionHandler,
-} from './features/v1/delete-permission/delete-permission';
-import {
-  UpdatePermissionController,
-  UpdatePermissionHandler,
-} from './features/v1/update-permission/update-permission';
 
 @Module({
   imports: [
@@ -30,9 +18,6 @@ import {
   ],
   exports: [],
   providers: [
-    UpdatePermissionHandler,
-    CreatePermissionHandler,
-    DeletePermissionHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',
@@ -47,10 +32,6 @@ import {
       useClass: GroupRepository,
     },
   ],
-  controllers: [
-    CreatePermissionController,
-    UpdatePermissionController,
-    DeletePermissionController,
-  ],
+  controllers: [],
 })
 export class PermissionModule {}

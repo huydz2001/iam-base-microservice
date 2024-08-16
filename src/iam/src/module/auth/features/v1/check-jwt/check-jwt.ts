@@ -63,7 +63,6 @@ export class CheckTokenHandler {
   }
 
   private async validateToken(accessToken: string) {
-    console.log(accessToken);
     try {
       const decodeToken = jwt.verify(accessToken, configs.jwt.secret);
 
