@@ -11,6 +11,7 @@ export declare const RoutingKey: {
     MOBILE_BE: {
         REGISTER: string;
         LOGIN: string;
+        UPDATE: string;
         CHANGE_PASS: string;
         REFRESHTOKEN: string;
         GET_USER_BY_ID: string;

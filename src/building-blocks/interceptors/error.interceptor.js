@@ -33,7 +33,7 @@ let ErrorsInterceptor = class ErrorsInterceptor {
                 ip = ip.join(' ');
             }
             let message;
-            if (error.response.message.length > 0) {
+            if (Array.isArray(error.response.message)) {
                 message = error.response.message[0];
             }
             else {

@@ -14,6 +14,7 @@ exports.RoutingKey = {
     MOBILE_BE: {
         REGISTER: 'ME_REGISTER',
         LOGIN: 'ME_LOGIN',
+        UPDATE: 'UPDATE',
         CHANGE_PASS: 'ME_CHANGE_PASS',
         REFRESHTOKEN: 'ME_REFRESH_TOKEN',
         GET_USER_BY_ID: 'GET_USER_BY_ID',
