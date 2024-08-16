@@ -1,5 +1,11 @@
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import configs from 'building-blocks/configs/configs';
 import { EVENT_AUTH } from 'building-blocks/constants/event.constant';
@@ -12,6 +18,7 @@ import { IUserRepository } from '../../../../../data/repositories/user.repositor
 
 export class Logout {
   accessToken: string;
+  userId: string;
 
   constructor(request: Partial<Logout> = {}) {
     Object.assign(this, request);
@@ -40,6 +47,10 @@ export class LogoutHandler {
         command.accessToken,
         TokenType.ACCESS,
       );
+
+      if (token.userId != command.userId) {
+        throw new ForbiddenException('You can only logout of your account');
+      }
 
       if (!token) {
         throw new NotFoundException('Token not found');
