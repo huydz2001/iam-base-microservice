@@ -9,16 +9,12 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
-import { Role } from '../../../enums/role.enum';
 
 export class CreateUser {
   email: string;
   password: string;
   name: string;
-  permissionIds: string[];
-  groupIds: string[];
   phone: string;
-  role: Role;
 
   constructor(request: Partial<CreateUser> = {}) {
     Object.assign(this, request);
@@ -37,15 +33,6 @@ export class CreateUserRequestDto {
 
   @ApiProperty()
   phone: string;
-
-  @ApiProperty()
-  role: Role;
-
-  @ApiProperty()
-  permissionIds: string[];
-
-  @ApiProperty()
-  groupIds: string[];
 
   constructor(request: Partial<CreateUserRequestDto> = {}) {
     Object.assign(this, request);
@@ -70,11 +57,8 @@ export class CreateUserController {
       new CreateUser({
         email: request.email,
         phone: request.phone,
-        permissionIds: request.permissionIds,
-        groupIds: request.groupIds,
         password: request.password,
         name: request.name,
-        role: request.role,
       }),
     );
 

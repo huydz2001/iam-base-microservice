@@ -6,6 +6,8 @@ import { Repository } from 'typeorm';
 export interface IProfileRepository {
   createProfile(profile: Profile): Promise<Profile>;
 
+  findByUserId(id: string): Promise<Profile>;
+
   updateProfile(profile: Profile): Promise<void>;
 }
 
@@ -15,6 +17,17 @@ export class ProfileRepository implements IProfileRepository {
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
   ) {}
+
+  async findByUserId(id: string): Promise<Profile> {
+    return await this.profileRepository.findOne({
+      where: {
+        user: {
+          id: id,
+        },
+      },
+      relations: { user: true },
+    });
+  }
 
   async updateProfile(profile: Profile): Promise<void> {
     await this.profileRepository.update(profile.id, profile);

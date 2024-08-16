@@ -1,6 +1,7 @@
 import { AmqpConnection, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
 import {
@@ -13,17 +14,12 @@ import { IGroupRepository } from '../../../../../data/repositories/group.reposit
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
 import { IProfileRepository } from '../../../../../data/repositories/profile.repository';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
-import { Role } from '../../../enums/role.enum';
-import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 
 export class CreateUser {
   email: string;
   password: string;
   name: string;
-  permissionIds: string[];
-  groupIds: string[];
   phone: string;
-  role: Role;
 
   constructor(request: Partial<CreateUser> = {}) {
     Object.assign(this, request);

@@ -4,6 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import configs from 'building-blocks/configs/configs';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
+import { CheckJwtHandler } from '../auth/feature/v1/check-jwt/check-jwt';
 import {
   VerifyOtpChangePassController,
   VerifyOtpChangePassHandler,
@@ -13,14 +14,17 @@ import {
   CreateUserHandler,
 } from './feature/v1/create-user/create-user';
 import {
-  VerifyOtpController,
-  VerifyOtpRegisterHandler,
-} from './feature/v1/verify-otp/verify-otp-register';
-import { CheckJwtHandler } from '../auth/feature/v1/check-jwt/check-jwt';
-import {
   GetUserByIdController,
   GetUserByIdHandler,
 } from './feature/v1/get-user-by-id/get-user-by-id';
+import {
+  UpdateUserController,
+  UpdateUserHandler,
+} from './feature/v1/update-user/update-user';
+import {
+  VerifyOtpController,
+  VerifyOtpRegisterHandler,
+} from './feature/v1/verify-otp/verify-otp-register';
 @Module({
   imports: [
     CqrsModule,
@@ -44,12 +48,14 @@ import {
     VerifyOtpChangePassHandler,
     CheckJwtHandler,
     GetUserByIdHandler,
+    UpdateUserHandler,
   ],
   controllers: [
     CreateUserController,
     VerifyOtpController,
     VerifyOtpChangePassController,
     GetUserByIdController,
+    UpdateUserController,
   ],
 })
 export class UserModule {}
