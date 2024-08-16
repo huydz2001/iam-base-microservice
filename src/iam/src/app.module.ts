@@ -31,7 +31,7 @@ import { UserModule } from './module/user/user.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.development'],
+      envFilePath: ['.env'],
     }),
     TypeOrmModule.forRoot(postgresOptions),
     PassportModule,
