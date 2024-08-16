@@ -127,8 +127,6 @@ export class UpdateModuleHandler {
       });
 
       return result;
-
-      return result;
     } catch (err) {
       this.logger.error(err.message);
       await queryRunner.rollbackTransaction();

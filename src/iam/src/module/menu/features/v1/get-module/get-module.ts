@@ -28,7 +28,11 @@ export class GetModulesHandler {
   })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async execute(payload: GetModules): Promise<any[]> {
-    const modulesEntity = await this.moduleRepository.findModules();
-    return modulesEntity;
+    try {
+      const modulesEntity = await this.moduleRepository.findModules();
+      return modulesEntity;
+    } catch (err) {
+      return err;
+    }
   }
 }

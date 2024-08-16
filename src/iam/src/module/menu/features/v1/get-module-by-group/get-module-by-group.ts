@@ -1,5 +1,5 @@
 import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject, Logger, NotFoundException } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
@@ -18,6 +18,7 @@ export class GetModulesByGroup {
 }
 
 export class GetModulesByGroupHandler {
+  private logger = new Logger(GetModulesByGroupHandler.name);
   constructor(
     @Inject('IModuleRepository')
     private readonly moduleRepository: IModuleRepository,
@@ -37,18 +38,23 @@ export class GetModulesByGroupHandler {
   async execute(query: GetModulesByGroup): Promise<any[]> {
     const { id } = query;
 
-    const existGroup = await this.groupRepository.findGroupById(id);
-    if (!existGroup) {
-      throw new NotFoundException('Group not found');
+    try {
+      const existGroup = await this.groupRepository.findGroupById(id);
+      if (!existGroup) {
+        throw new NotFoundException('Group not found');
+      }
+
+      const permissions = await this.permissionRepository.findByGroupId(id);
+
+      const permissionIds = permissions.map((item) => {
+        return item.id;
+      });
+      const modules = this.moduleRepository.findByPermissionsIds(permissionIds);
+
+      return modules;
+    } catch (err) {
+      this.logger.error(err.message);
+      return err;
     }
-
-    const permissions = await this.permissionRepository.findByGroupId(id);
-
-    const permissionIds = permissions.map((item) => {
-      return item.id;
-    });
-    const modules = this.moduleRepository.findByPermissionsIds(permissionIds);
-
-    return modules;
   }
 }

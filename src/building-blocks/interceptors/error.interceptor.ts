@@ -44,7 +44,13 @@ export class ErrorsInterceptor implements NestInterceptor {
           ip = ip.join(' ');
         }
 
-        const message = error?.response?.message;
+        let message: string;
+
+        if (error.response.message.length > 0) {
+          message = error.response.message[0];
+        } else {
+          message = error?.response?.message;
+        }
         const status = error?.response?.statusCode;
 
         this.logger.error(`${method} ${url} ${status} - ${ip} +${delay}ms`, {

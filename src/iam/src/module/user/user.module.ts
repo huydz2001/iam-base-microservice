@@ -18,6 +18,7 @@ import { Profile } from './entities/profile.entity';
 import { User } from './entities/user.entity';
 import { CreateUserHandler } from './feature/v1/create-user/create-user';
 import { VerifyOtpRegisterHandler } from './feature/v1/verify-otp/verify-otp-register';
+import { GetUserByIdHandler } from './feature/v1/get-user-by-id/get-user-by-id';
 @Module({
   imports: [
     CqrsModule,
@@ -43,6 +44,7 @@ import { VerifyOtpRegisterHandler } from './feature/v1/verify-otp/verify-otp-reg
     CreateUserHandler,
     VerifyOtpRegisterHandler,
     VerifyOtpChangePassHandler,
+    GetUserByIdHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',

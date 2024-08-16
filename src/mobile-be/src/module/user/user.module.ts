@@ -17,6 +17,10 @@ import {
   VerifyOtpRegisterHandler,
 } from './feature/v1/verify-otp/verify-otp-register';
 import { CheckJwtHandler } from '../auth/feature/v1/check-jwt/check-jwt';
+import {
+  GetUserByIdController,
+  GetUserByIdHandler,
+} from './feature/v1/get-user-by-id/get-user-by-id';
 @Module({
   imports: [
     CqrsModule,
@@ -39,11 +43,13 @@ import { CheckJwtHandler } from '../auth/feature/v1/check-jwt/check-jwt';
     ConfigData,
     VerifyOtpChangePassHandler,
     CheckJwtHandler,
+    GetUserByIdHandler,
   ],
   controllers: [
     CreateUserController,
     VerifyOtpController,
     VerifyOtpChangePassController,
+    GetUserByIdController,
   ],
 })
 export class UserModule {}

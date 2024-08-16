@@ -8,41 +8,38 @@ import {
   handleRpcError,
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
-import { IsUUID } from 'class-validator';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
-import { GroupDto } from '../../../dtos/group.dto';
+import { IsUUID } from 'class-validator';
 
-// =================================== Command ==========================================
-export class GetGroupById {
+// =================================== Caommand ==========================================
+export class GetUserById {
   id: string;
 
-  constructor(item: Partial<GetGroupById> = {}) {
-    Object.assign(this, item);
+  constructor(request: Partial<GetUserById> = {}) {
+    Object.assign(this, request);
   }
 }
 
-export class GetGroupByIdDto {
+export class GetUserByIdDto {
   @IsUUID()
   id: string;
 }
 
 // ====================================== Controller ============================================
 @ApiBearerAuth()
-@ApiTags('Groups')
+@ApiTags('Users')
 @Controller({
-  path: `/group`,
+  path: `/user`,
   version: '1',
 })
-export class GetGroupByIdController {
+export class GetUserByIdController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @Get('detail/:id')
   @Auth()
-  async getGroupById(@Param('id') request: GetGroupByIdDto): Promise<GroupDto> {
+  async getModules(@Param('id') request: GetUserByIdDto): Promise<any[]> {
     const result = await this.queryBus.execute(
-      new GetGroupById({
-        id: request.id,
-      }),
+      new GetUserById({ id: request.id }),
     );
 
     return result;
@@ -50,21 +47,19 @@ export class GetGroupByIdController {
 }
 
 // =====================================Command Handler =================================================
-@QueryHandler(GetGroupById)
-export class GetGroupByIdHandler implements IQueryHandler<GetGroupById> {
-  private logger = new Logger(GetGroupByIdHandler.name);
+@QueryHandler(GetUserById)
+export class GetUserByIdHandler implements IQueryHandler<GetUserById> {
+  private logger = new Logger(GetUserByIdHandler.name);
   constructor(private readonly amqpConnection: AmqpConnection) {}
 
-  async execute(query: GetGroupById): Promise<GroupDto> {
+  async execute(query: GetUserById): Promise<any[]> {
     try {
       const resp = await this.amqpConnection.request<any>({
         exchange: configs.rabbitmq.exchange,
-        routingKey: RoutingKey.MOBILE_BE.GET_GROUP_BY_ID,
+        routingKey: RoutingKey.MOBILE_BE.GET_USER_BY_ID,
         payload: query,
         timeout: 10000,
       });
-
-      console.log(resp);
 
       if (resp?.data?.message !== undefined) {
         const response = new ReponseDto({

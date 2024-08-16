@@ -31,7 +31,9 @@ export class GetGroupByIdHandler {
     try {
       const { id } = command;
 
+      console.log(id);
       const group = await this.groupRepository.findGroupById(id);
+      console.log(group);
 
       if (!group) {
         throw new NotFoundException('Group not found');

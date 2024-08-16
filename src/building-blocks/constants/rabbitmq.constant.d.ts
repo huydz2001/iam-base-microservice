@@ -13,6 +13,7 @@ export declare const RoutingKey: {
         LOGIN: string;
         CHANGE_PASS: string;
         REFRESHTOKEN: string;
+        GET_USER_BY_ID: string;
         LOGOUT: string;
         VERIFY_OTP: string;
         VERIFY_OTP_CHANGE_PASS: string;

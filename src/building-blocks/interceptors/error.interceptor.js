@@ -32,7 +32,13 @@ let ErrorsInterceptor = class ErrorsInterceptor {
             if (Array.isArray(ip)) {
                 ip = ip.join(' ');
             }
-            const message = (_a = error === null || error === void 0 ? void 0 : error.response) === null || _a === void 0 ? void 0 : _a.message;
+            let message;
+            if (error.response.message.length > 0) {
+                message = error.response.message[0];
+            }
+            else {
+                message = (_a = error === null || error === void 0 ? void 0 : error.response) === null || _a === void 0 ? void 0 : _a.message;
+            }
             const status = (_b = error === null || error === void 0 ? void 0 : error.response) === null || _b === void 0 ? void 0 : _b.statusCode;
             this.logger.error(`${method} ${url} ${status} - ${ip} +${delay}ms`, {
                 message
