@@ -1,5 +1,12 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Body, Controller, Logger, Param, Put } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Logger,
+  Param,
+  Put,
+} from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
@@ -13,7 +20,7 @@ import {
   handleRpcError,
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, isUUID, MaxLength } from 'class-validator';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { GroupDto } from '../../../dtos/group.dto';
 import { TypePermissionCreateGroup } from '../../../enums/type-permission-create-group';
@@ -25,7 +32,6 @@ export class UpdateGroup {
   name: string;
   desc: string;
   type: string;
-  userIds: string[];
   permissionIds: string[];
 
   constructor(item: Partial<UpdateGroup> = {}) {
@@ -44,10 +50,6 @@ export class UpdateGroupRequestDto {
   @MaxLength(100)
   @IsOptional()
   desc: string;
-
-  @ApiProperty()
-  @IsOptional()
-  userIds: string[];
 
   @ApiProperty({ description: 'Type ' })
   @IsString()
@@ -78,7 +80,11 @@ export class UpdateGroupController {
     @Param('id') id: string,
     @Body() request: UpdateGroupRequestDto,
   ): Promise<GroupDto> {
-    const { name, desc, userIds, permissionIds, type } = request;
+    const { name, desc, permissionIds, type } = request;
+
+    if (!isUUID(id)) {
+      throw new BadRequestException('Id must be UUID');
+    }
 
     const result = await this.commandBus.execute(
       new UpdateGroup({
@@ -86,7 +92,6 @@ export class UpdateGroupController {
         name: name,
         desc: desc,
         type: type,
-        userIds: userIds,
         permissionIds: permissionIds,
       }),
     );

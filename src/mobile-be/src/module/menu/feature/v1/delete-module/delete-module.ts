@@ -1,5 +1,11 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Controller, Delete, Logger, Param } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Delete,
+  Logger,
+  Param,
+} from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
@@ -8,7 +14,7 @@ import {
   handleRpcError,
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
-import { IsString, IsUUID } from 'class-validator';
+import { IsString, isUUID } from 'class-validator';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
 
@@ -32,11 +38,6 @@ export class DeleteModuleRequestDto {
   }
 }
 
-export class DeleteModuleDto {
-  @IsUUID()
-  id: string;
-}
-
 // ====================================== Controller ============================================
 @ApiBearerAuth()
 @ApiTags('Modules')
@@ -49,10 +50,13 @@ export class DeleteModuleController {
 
   @Delete('delete/:id')
   @AdminAuth()
-  async deleteModule(@Param('id') request: DeleteModuleDto): Promise<void> {
+  async deleteModule(@Param('id') id: string): Promise<void> {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Id must be UUID');
+    }
     const result = await this.commandBus.execute(
       new DeleteModule({
-        id: request.id,
+        id: id,
       }),
     );
 

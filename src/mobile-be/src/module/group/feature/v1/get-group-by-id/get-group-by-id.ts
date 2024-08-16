@@ -1,5 +1,11 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Controller, Get, Logger, Param } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Logger,
+  Param,
+} from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
@@ -8,7 +14,7 @@ import {
   handleRpcError,
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
-import { IsUUID } from 'class-validator';
+import { isUUID } from 'class-validator';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
 import { GroupDto } from '../../../dtos/group.dto';
 
@@ -19,11 +25,6 @@ export class GetGroupById {
   constructor(item: Partial<GetGroupById> = {}) {
     Object.assign(this, item);
   }
-}
-
-export class GetGroupByIdDto {
-  @IsUUID()
-  id: string;
 }
 
 // ====================================== Controller ============================================
@@ -38,10 +39,14 @@ export class GetGroupByIdController {
 
   @Get('detail/:id')
   @Auth()
-  async getGroupById(@Param('id') request: GetGroupByIdDto): Promise<GroupDto> {
+  async getGroupById(@Param('id') id: string): Promise<GroupDto> {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Id must be UUID');
+    }
+
     const result = await this.queryBus.execute(
       new GetGroupById({
-        id: request.id,
+        id: id,
       }),
     );
 

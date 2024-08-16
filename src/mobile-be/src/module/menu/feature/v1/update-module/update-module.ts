@@ -1,5 +1,12 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Body, Controller, Logger, Param, Put } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Logger,
+  Param,
+  Put,
+} from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
@@ -7,7 +14,7 @@ import {
   ApiPropertyOptional,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, isUUID, MaxLength } from 'class-validator';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
 import {
@@ -71,6 +78,10 @@ export class UpdateModuleController {
     @Param('id') id: string,
     @Body() request: UpdateModuleRequestDto,
   ): Promise<void> {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Id must be UUID');
+    }
+
     const { name, desc, parentId, typePermisisons } = request;
 
     const result = await this.commandBus.execute(

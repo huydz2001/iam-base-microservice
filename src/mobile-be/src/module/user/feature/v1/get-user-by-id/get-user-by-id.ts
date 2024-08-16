@@ -1,5 +1,11 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { Controller, Get, Logger, Param } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Logger,
+  Param,
+} from '@nestjs/common';
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
@@ -8,8 +14,8 @@ import {
   handleRpcError,
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
+import { isUUID } from 'class-validator';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
-import { IsUUID } from 'class-validator';
 
 // =================================== Caommand ==========================================
 export class GetUserById {
@@ -18,11 +24,6 @@ export class GetUserById {
   constructor(request: Partial<GetUserById> = {}) {
     Object.assign(this, request);
   }
-}
-
-export class GetUserByIdDto {
-  @IsUUID()
-  id: string;
 }
 
 // ====================================== Controller ============================================
@@ -37,10 +38,11 @@ export class GetUserByIdController {
 
   @Get('detail/:id')
   @Auth()
-  async getModules(@Param('id') request: GetUserByIdDto): Promise<any[]> {
-    const result = await this.queryBus.execute(
-      new GetUserById({ id: request.id }),
-    );
+  async getModules(@Param('id') id: string): Promise<any[]> {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Id must be UUID');
+    }
+    const result = await this.queryBus.execute(new GetUserById({ id: id }));
 
     return result;
   }

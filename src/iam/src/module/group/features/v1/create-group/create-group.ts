@@ -12,13 +12,11 @@ import { Group } from '../../../../../module/group/entities/group.entity';
 import { TypePermissionCreateGroup } from '../../../../../module/group/enums/type-create-permission';
 import mapper from '../../../../../module/group/mapping';
 import { Permission } from '../../../../../module/permission/entities/permission.entity';
-import { User } from '../../../../../module/user/entities/user.entity';
 
 export class CreateGroup {
   name: string;
   desc: string;
   type: string;
-  userIds: string[];
   permissionIds: string[];
   userLoginId: string;
 
@@ -48,13 +46,8 @@ export class CreateGroupHandler {
   })
   async execute(command: CreateGroup): Promise<GroupDto> {
     try {
-      const { name, desc, userIds, permissionIds, type, userLoginId } = command;
-      let users: User[] = [];
+      const { name, desc, permissionIds, type, userLoginId } = command;
       let permissions: Permission[] = [];
-
-      if (userIds.length > 0) {
-        users = await this.userRepository.findUserByIds(userIds);
-      }
 
       if (type === TypePermissionCreateGroup.ALL) {
         permissions = await this.permissionRepository.findAll();
@@ -68,7 +61,6 @@ export class CreateGroupHandler {
       let group = new Group({
         name: name,
         desc: desc,
-        users: users ?? [],
         permissions: permissions ?? [],
       });
 

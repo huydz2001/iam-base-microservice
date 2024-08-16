@@ -12,10 +12,10 @@ import { IPermissionRepository } from '../../../../../data/repositories/permissi
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 import { Group } from '../../../../group/entities/group.entity';
 import { Permission } from '../../../../permission/entities/permission.entity';
-import { UserDto } from '../../../dtos/user-dto';
 import { Profile } from '../../../entities/profile.entity';
 import { User } from '../../../entities/user.entity';
-import mapper from '../../../mapping';
+import mapper from '../../../../../module/group/mapping';
+import { UserDto } from '../../../../../module/user/dtos/user-dto';
 
 export class VerifyOtp {
   otp: string;
@@ -63,25 +63,37 @@ export class VerifyOtpRegisterHandler {
 
     let groups: Group[];
     let permissions: Permission[];
-
-    if (groupIds.length > 0) {
-      groups = await this.groupRepository.findGroupByIds(groupIds);
-    }
-
-    if (permissionIds.length > 0) {
-      permissions = await this.permissionRepository.findByIds(permissionIds);
-      const permissionsByGroups =
-        await this.permissionRepository.findByGroupIds(groupIds);
-      permissions = [...new Set([...permissions, ...permissionsByGroups])];
-    }
-
-    await queryRunner.startTransaction();
-
     try {
+      if (groupIds.length > 0) {
+        groups = await this.groupRepository.findGroupByIds(groupIds);
+      }
+
+      if (permissionIds.length > 0) {
+        permissions = await this.permissionRepository.findByIds(permissionIds);
+
+        const permissionsByGroups =
+          await this.permissionRepository.findByGroupIds(groupIds);
+
+        const permissionsIdByGroups = permissionsByGroups.map(
+          (item) => item.id,
+        );
+
+        const permissionsIdsResult = permissionIds.filter(
+          (item: string) => !permissionsIdByGroups.includes(item),
+        );
+
+        permissions =
+          await this.permissionRepository.findByIds(permissionsIdsResult);
+      }
+
+      await queryRunner.startTransaction();
+      const hashPass = await encryptPassword(password);
+      console.log(permissions);
+
       const userEntity = new User({
         email: email,
         phone: phone,
-        hashPass: await encryptPassword(password),
+        hashPass: hashPass,
         role: role,
         profile: null,
         permissions: permissions ?? [],
@@ -89,10 +101,7 @@ export class VerifyOtpRegisterHandler {
         isEmailVerified: true,
       });
 
-      const newUserEntity = this.configData.createData(
-        userEntity,
-        JSON.parse(userLogin),
-      );
+      const newUserEntity = this.configData.createData(userEntity, userLogin);
 
       // Lưu user entity
       const createdUser = await queryRunner.manager.save(User, newUserEntity);
@@ -109,7 +118,7 @@ export class VerifyOtpRegisterHandler {
 
       const newProfileEntity = this.configData.createData(
         profileEntity,
-        JSON.parse(userLogin),
+        userLogin,
       );
 
       // Lưu profile entity
@@ -122,8 +131,8 @@ export class VerifyOtpRegisterHandler {
       return result;
     } catch (error) {
       // Rollback transaction in case of error
+      this.logger.error(error.message);
       await queryRunner.rollbackTransaction();
-      await queryRunner.release();
       return error;
     } finally {
       // Release query runner

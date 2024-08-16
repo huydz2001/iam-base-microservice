@@ -1,5 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import {
+  BadRequestException,
   Controller,
   Delete,
   Logger,
@@ -16,6 +17,7 @@ import {
 } from 'building-blocks/utils/handle-error-rpc';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { GroupDto } from '../../../../../module/group/dtos/group.dto';
+import { isUUID } from 'class-validator';
 
 export class DeleteGroupById {
   id: string;
@@ -37,6 +39,10 @@ export class DeleteGroupByIdController {
   @Delete('delete')
   @AdminAuth()
   public async deleteGroupById(@Query('id') id: string): Promise<GroupDto> {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Id must be UUID');
+    }
+
     const group = await this.commandBus.execute(
       new DeleteGroupById({
         id: id,

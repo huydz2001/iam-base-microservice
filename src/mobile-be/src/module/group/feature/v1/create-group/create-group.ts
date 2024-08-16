@@ -9,22 +9,21 @@ import {
 } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
+import { HttpContext } from 'building-blocks/context/context';
 import {
   handleRpcError,
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { GroupDto } from '../../../../../module/group/dtos/group.dto';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
+import { GroupDto } from '../../../../../module/group/dtos/group.dto';
 import { TypePermissionCreateGroup } from '../../../enums/type-permission-create-group';
-import { HttpContext } from 'building-blocks/context/context';
 
 // =================================== Command ==========================================
 export class CreateGroup {
   name: string;
   desc: string;
   type: string;
-  userIds: string[];
   permissionIds: string[];
 
   constructor(item: Partial<CreateGroup> = {}) {
@@ -43,10 +42,6 @@ export class CreateGroupRequestDto {
   @MaxLength(100)
   @IsOptional()
   desc: string;
-
-  @ApiProperty()
-  @IsOptional()
-  userIds: string[];
 
   @ApiProperty({ description: 'Type ' })
   @IsString()
@@ -76,14 +71,13 @@ export class CreateGroupController {
   async createModule(
     @Body() request: CreateGroupRequestDto,
   ): Promise<GroupDto> {
-    const { name, desc, userIds, permissionIds, type } = request;
+    const { name, desc, permissionIds, type } = request;
 
     const result = await this.commandBus.execute(
       new CreateGroup({
         name: name,
         desc: desc,
         type: type,
-        userIds: userIds,
         permissionIds: permissionIds,
       }),
     );
