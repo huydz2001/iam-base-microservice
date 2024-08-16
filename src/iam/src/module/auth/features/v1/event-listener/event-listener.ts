@@ -41,9 +41,9 @@ export class HandleEventListener {
 
   @OnEvent(EVENT_AUTH.DEL_TOKEN_REDIS)
   async delTokenRedis(payload: any) {
-    Promise.all([
-      await this.redisCacheService.delValue(`accessToken:${payload}`),
-      await this.redisCacheService.delValue(`refreshToken:${payload}`),
+    await Promise.all([
+      this.redisCacheService.delValue(`accessToken:${payload}`),
+      this.redisCacheService.delValue(`refreshToken:${payload}`),
     ]);
   }
 }
