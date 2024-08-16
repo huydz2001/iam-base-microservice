@@ -74,6 +74,8 @@ export class UpdateUserHandler {
 
         permissions =
           await this.permissionRepository.findByIds(permissionsIdsResult);
+      } else {
+        permissions = [];
       }
 
       existUser.groups = groups;
