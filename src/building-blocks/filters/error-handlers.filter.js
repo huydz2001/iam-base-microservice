@@ -79,7 +79,15 @@ let ErrorHandlersFilter = ErrorHandlersFilter_1 = class ErrorHandlersFilter {
             problem = this.createProblemDocument('UnknownError', 'An unexpected error occurred', err.stack, statusCode);
         }
         const { detail } = problem, prolem = __rest(problem, ["detail"]);
-        response.status(statusCode).json(prolem);
+        const resp = {
+            success: false,
+            code: statusCode,
+            message: problem.type,
+            data: {
+                message: problem.title
+            }
+        };
+        response.status(statusCode).json(resp);
         this.logger.error((0, serilization_1.serializeObject)(problem));
     }
     createProblemDocument(type, title, detail, status) {
