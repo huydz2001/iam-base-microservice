@@ -14,10 +14,7 @@ export class RedisModule {
     private readonly redisPubsubService: RedisPubsubService
   ) {}
   async onApplicationShutdown() {
-    Promise.all([
-      await this.redisPubsubService.disconnect(),
-      await this.redisCacheService.disconnect()
-    ]);
+    await Promise.all([this.redisPubsubService.disconnect(), this.redisCacheService.disconnect()]);
   }
 
   static forRoot(options?: RedisOptions, optionsPubsub?: RedisPubsubOptions): DynamicModule {

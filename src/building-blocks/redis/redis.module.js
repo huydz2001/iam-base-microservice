@@ -20,10 +20,7 @@ let RedisModule = RedisModule_1 = class RedisModule {
         this.redisPubsubService = redisPubsubService;
     }
     async onApplicationShutdown() {
-        Promise.all([
-            await this.redisPubsubService.disconnect(),
-            await this.redisCacheService.disconnect()
-        ]);
+        await Promise.all([this.redisPubsubService.disconnect(), this.redisCacheService.disconnect()]);
     }
     static forRoot(options, optionsPubsub) {
         return {
