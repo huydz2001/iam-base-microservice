@@ -54,8 +54,6 @@ export class LoginController {
   public async login(@Body() request: LoginRequestDto) {
     const result = await this.commandBus.execute(new Login(request));
 
-    // res.status(HttpStatus.OK).send(result);
-
     return result;
   }
 }

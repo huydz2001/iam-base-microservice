@@ -8,6 +8,7 @@ import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IAuthRepository } from '../../../../../data/repositories/auth.repository';
 import { TokenType } from '../../../enums/token-type.enum';
 import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
+import { IUserRepository } from '../../../../../data/repositories/user.repository';
 
 export class Logout {
   accessToken: string;
@@ -22,6 +23,7 @@ export class LogoutHandler {
   private logger = new Logger(LogoutHandler.name);
   constructor(
     @Inject('IAuthRepository') private readonly authRepository: IAuthRepository,
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
     private redisCacheService: RedisCacheService,
     private eventEmitter: EventEmitter2,
   ) {}

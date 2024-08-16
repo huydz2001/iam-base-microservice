@@ -1,5 +1,5 @@
 import { TypeMapper } from 'ts-mapper';
-import { Group } from 'src/module/group/entities/group.entity';
+import { Group } from '../../module/group/entities/group.entity';
 import { GroupDto } from './dtos/group-dto';
 
 export class Mapper extends TypeMapper {
@@ -21,14 +21,6 @@ export class Mapper extends TypeMapper {
       .map(
         (src) => src.desc,
         (dest) => dest.desc,
-      )
-      .map(
-        (src) => src.permissions,
-        (dest) => dest.permissions,
-      )
-      .map(
-        (src) => src.users,
-        (dest) => dest.users,
       )
       .map(
         (src) => src.createdAt,

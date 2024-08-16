@@ -36,7 +36,7 @@ export class Permission extends EntityAuditBase<string> {
   })
   moduleId: string;
 
-  @ManyToOne(() => Modules, (m) => m.permisions)
+  @ManyToOne(() => Modules, (m) => m.permisions, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'module_id',
     referencedColumnName: 'id',

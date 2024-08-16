@@ -16,14 +16,14 @@ export class HandleEventListener {
 
     const expiredRefresh = getDurationExpired(token.refresh?.expires);
 
-    Promise.all([
-      await this.redisCacheService.setCacheExpried(
+    await Promise.all([
+      this.redisCacheService.setCacheExpried(
         `accessToken:${userId}`,
         JSON.stringify(token.access),
         expiredAccess,
       ),
 
-      await this.redisCacheService.setCacheExpried(
+      this.redisCacheService.setCacheExpried(
         `refreshToken:${userId}`,
         JSON.stringify(token.refresh),
         expiredRefresh,
@@ -33,17 +33,17 @@ export class HandleEventListener {
 
   @OnEvent(EVENT_AUTH.LOGOUT)
   async logout(payload: any) {
-    Promise.all([
-      await this.redisCacheService.delValue(`accessToken:${payload}`),
-      await this.redisCacheService.delValue(`refreshToken:${payload}`),
+    await Promise.all([
+      this.redisCacheService.delValue(`accessToken:${payload}`),
+      this.redisCacheService.delValue(`refreshToken:${payload}`),
     ]);
   }
 
   @OnEvent(EVENT_AUTH.DEL_TOKEN_REDIS)
   async delTokenRedis(payload: any) {
-    Promise.all([
-      await this.redisCacheService.delValue(`accessToken:${payload}`),
-      await this.redisCacheService.delValue(`refreshToken:${payload}`),
+    await Promise.all([
+      this.redisCacheService.delValue(`accessToken:${payload}`),
+      this.redisCacheService.delValue(`refreshToken:${payload}`),
     ]);
   }
 }

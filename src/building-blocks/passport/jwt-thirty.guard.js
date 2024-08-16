@@ -50,7 +50,7 @@ let JwtThirtyGuard = JwtThirtyGuard_1 = class JwtThirtyGuard extends (0, passpor
     }
     handleRequest(err, user) {
         if (err || !user) {
-            throw err || new common_1.UnauthorizedException('Invalid Token');
+            throw err || new common_1.ForbiddenException('Access denied: Invalid Token');
         }
         return user;
     }

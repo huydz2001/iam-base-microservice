@@ -18,5 +18,16 @@ export declare const RoutingKey: {
         VERIFY_OTP_CHANGE_PASS: string;
         CHECK_JWT_TOKEN: string;
         CHECK_ADMIN_GUARD: string;
+        CREATE_GROUP: string;
+        UPDATE_GROUP: string;
+        DEL_GROUP: string;
+        GET_GROUPS: string;
+        CREATE_MODULE: string;
+        UPDATE_MODULE: string;
+        DEL_MODULE: string;
+        GET_GROUP_BY_ID: string;
+        GET_MODULE_BY_USER: string;
+        GET_MODULES: string;
+        GET_MODULE_BY_GROUP: string;
     };
 };

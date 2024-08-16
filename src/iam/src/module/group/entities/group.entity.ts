@@ -11,7 +11,7 @@ export class Group extends EntityAuditBase<string> {
   @Column({ nullable: true })
   desc: string;
 
-  @ManyToMany(() => Permission, (p) => p.groups)
+  @ManyToMany(() => Permission, (p) => p.groups, { onDelete: 'CASCADE' })
   @JoinTable({
     name: 'groups_permissions',
     joinColumn: { name: 'group_id', referencedColumnName: 'id' },

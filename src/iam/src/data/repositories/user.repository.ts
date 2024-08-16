@@ -2,13 +2,16 @@ import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { User } from '../../module/user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
+import { Token } from '../../module/auth/entities/token.entity';
 
 export interface IUserRepository {
   createUser(user: User): Promise<User>;
 
+  updateLoginToken(userId: string, token: Token): Promise<void>;
+
   updateUser(user: User): Promise<void>;
 
-  updatePass(userId: string, newPass: string): Promise<void>;
+  updatePass(userId: string, newPass: string, userLogin: string): Promise<void>;
 
   findUsers(
     page: number,
@@ -40,10 +43,21 @@ export class UserRepository implements IUserRepository {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async updatePass(userId: string, newPass: string): Promise<void> {
+  async updateLoginToken(userId: string, token: Token): Promise<void> {
+    await this.userRepository.update(userId, {
+      token: token,
+    });
+  }
+
+  async updatePass(
+    userId: string,
+    newPass: string,
+    userLogin: string,
+  ): Promise<void> {
     await this.userRepository.update(userId, {
       hashPass: newPass,
       updatedAt: new Date(),
+      updatedBy: userLogin,
     });
   }
 

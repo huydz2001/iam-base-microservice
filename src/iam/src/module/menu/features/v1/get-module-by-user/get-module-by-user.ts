@@ -1,17 +1,12 @@
-import {
-  Controller,
-  Get,
-  Inject,
-  NotFoundException,
-  Query,
-} from '@nestjs/common';
-import { ICommandHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Inject, NotFoundException } from '@nestjs/common';
+import configs from 'building-blocks/configs/configs';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
-import { IModuleRepository } from '../../../../../data/repositories/module.repository';
+import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
+import { IModuleRepository } from '../../../../../data/repositories/module.repository';
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
-import { Auth } from '../../../../../common/decorator/auth.decorator';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 
 // =================================== Caommand ==========================================
@@ -23,30 +18,7 @@ export class GetModulesByUser {
   }
 }
 
-// ====================================== Controller ============================================
-@ApiBearerAuth()
-@ApiTags('Modules')
-@Controller({
-  path: `/module`,
-  version: '1',
-})
-export class GetModulesByUserController {
-  constructor(private readonly queryBus: QueryBus) {}
-
-  @Get('get-by-user')
-  @Auth()
-  async getModules(@Query('id') id: string): Promise<any[]> {
-    const result = await this.queryBus.execute(new GetModulesByUser({ id }));
-
-    return result;
-  }
-}
-
-// =====================================Command Handler =================================================
-@QueryHandler(GetModulesByUser)
-export class GetModulesByUserHandler
-  implements ICommandHandler<GetModulesByUser>
-{
+export class GetModulesByUserHandler {
   constructor(
     @Inject('IModuleRepository')
     private readonly moduleRepository: IModuleRepository,
@@ -59,6 +31,12 @@ export class GetModulesByUserHandler
     private readonly configData: ConfigData,
   ) {}
 
+  @RabbitRPC({
+    exchange: configs.rabbitmq.exchange,
+    routingKey: RoutingKey.MOBILE_BE.GET_MODULE_BY_USER,
+    queue: randomQueueName(),
+    queueOptions: { autoDelete: true },
+  })
   async execute(query: GetModulesByUser): Promise<any[]> {
     const { id } = query;
     let permissionIds = [];

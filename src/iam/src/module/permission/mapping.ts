@@ -11,6 +11,10 @@ export class Mapper extends TypeMapper {
   private config(): void {
     this.createMap<Permission, PermissionDto>()
       .map(
+        (src) => src.id,
+        (dest) => dest.id,
+      )
+      .map(
         (src) => src.type,
         (dest) => dest.type,
       )
@@ -21,10 +25,6 @@ export class Mapper extends TypeMapper {
       .map(
         (src) => src.moduleId,
         (dest) => dest.moduleId,
-      )
-      .map(
-        (src) => src.module,
-        (dest) => dest.module,
       )
       .map(
         (src) => src.createdAt,

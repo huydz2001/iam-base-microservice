@@ -1,48 +1,34 @@
-import { Controller, Get, Inject } from '@nestjs/common';
-import { ICommandHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { Inject } from '@nestjs/common';
+import configs from 'building-blocks/configs/configs';
+import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
-import { Auth } from '../../../../../common/decorator/auth.decorator';
+import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { IModuleRepository } from '../../../../../data/repositories/module.repository';
 
-// =================================== Caommand ==========================================
+// =================================== Command ==========================================
 export class GetModules {
   constructor(request: Partial<GetModules> = {}) {
     Object.assign(this, request);
   }
 }
 
-// ====================================== Controller ============================================
-@ApiBearerAuth()
-@ApiTags('Modules')
-@Controller({
-  path: `/module`,
-  version: '1',
-})
-export class GetModulesController {
-  constructor(private readonly queryBus: QueryBus) {}
-
-  @Get('get')
-  @Auth()
-  async getModules(): Promise<any[]> {
-    const result = await this.queryBus.execute(new GetModules());
-    return result;
-  }
-}
-
-// =====================================Command Handler =================================================
-@QueryHandler(GetModules)
-export class GetModulesHandler implements ICommandHandler<GetModules> {
+export class GetModulesHandler {
   constructor(
     @Inject('IModuleRepository')
     private readonly moduleRepository: IModuleRepository,
     private readonly configData: ConfigData,
   ) {}
 
+  @RabbitRPC({
+    exchange: configs.rabbitmq.exchange,
+    routingKey: RoutingKey.MOBILE_BE.GET_MODULES,
+    queue: randomQueueName(),
+    queueOptions: { autoDelete: true },
+  })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async execute(query: GetModules): Promise<any[]> {
+  async execute(payload: GetModules): Promise<any[]> {
     const modulesEntity = await this.moduleRepository.findModules();
-
     return modulesEntity;
   }
 }

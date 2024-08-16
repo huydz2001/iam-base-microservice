@@ -38,7 +38,7 @@ export class LoggersService {
   logError(error: any, options?: any) {
     const { message, stack, response } = error;
     this.logger.error(
-      `==============\n${options || message}\n${stack}\n${response?.data?.message || response}`
+      `==============\n${options || message}\n${stack}\n${response?.message || response}`
     );
   }
 

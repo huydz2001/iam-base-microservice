@@ -16,6 +16,8 @@ export interface IGroupRepository {
   updateGroup(group: Group): Promise<void>;
 
   removeGroup(group: Group): Promise<Group>;
+
+  findAll(): Promise<Group[]>;
 }
 
 export class GroupRepository implements IGroupRepository {
@@ -23,6 +25,17 @@ export class GroupRepository implements IGroupRepository {
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
   ) {}
+
+  async findAll(): Promise<Group[]> {
+    return await this.groupRepository.find({
+      where: { isDeleted: false },
+      select: {
+        id: true,
+        name: true,
+        desc: true,
+      },
+    });
+  }
 
   async findGroupsByUserId(id: string): Promise<Group[]> {
     return await this.groupRepository.find({

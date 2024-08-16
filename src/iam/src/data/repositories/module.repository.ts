@@ -120,6 +120,7 @@ export class ModuleRepository implements IModuleRepository {
   async findById(id: string): Promise<Modules> {
     return await this.moduleRepository.findOne({
       where: { id: id, isDeleted: false },
+      relations: { permisions: true },
     });
   }
 

@@ -44,30 +44,8 @@ export class ErrorsInterceptor implements NestInterceptor {
           ip = ip.join(' ');
         }
 
-        let status: number;
-        let message: string;
-        const errRespData = error?.response?.data;
-
-        if (errRespData) {
-          message =
-            errRespData?.errors?.[0]?.message ||
-            errRespData?.message ||
-            'Lỗi hệ thống, vui lòng thử lại.';
-          status = errRespData?.status || HttpStatus.BAD_REQUEST;
-        } else {
-          message =
-            error?.response?.message === 'Bad Request' ||
-            error?.response?.message === 'Internal Server Error'
-              ? 'Lỗi hệ thống, vui lòng thử lại.'
-              : error?.response?.message === 'Unauthorized'
-                ? 'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.'
-                : error?.response?.message || error?.message;
-          status =
-            error?.status ||
-            error?.response?.status ||
-            error?.response?.statusCode ||
-            HttpStatus.INTERNAL_SERVER_ERROR;
-        }
+        const message = error?.response?.message;
+        const status = error?.response?.statusCode;
 
         this.logger.error(`${method} ${url} ${status} - ${ip} +${delay}ms`, {
           message

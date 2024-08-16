@@ -37,7 +37,7 @@ let AdminThirtyGuard = AdminThirtyGuard_1 = class AdminThirtyGuard extends (0, p
             try {
                 const resp = await this.checkJwtHandler.checkAdminGuard({ accessToken: token });
                 if (!resp) {
-                    throw new common_1.UnauthorizedException('Access denied: Invalid token payload');
+                    throw new common_1.ForbiddenException('Access denied');
                 }
                 return super.canActivate(context);
             }
@@ -50,7 +50,7 @@ let AdminThirtyGuard = AdminThirtyGuard_1 = class AdminThirtyGuard extends (0, p
     }
     handleRequest(err, user) {
         if (err || !user) {
-            throw err || new common_1.UnauthorizedException('Invalid Token');
+            throw err || new common_1.ForbiddenException('Access denied');
         }
         return user;
     }

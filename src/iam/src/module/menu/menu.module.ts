@@ -7,30 +7,16 @@ import { Modules } from '../menu/entities/module.entity';
 
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { GroupRepository } from '../../data/repositories/group.repository';
+import { UserRepository } from '../../data/repositories/user.repository';
 import { Group } from '../group/entities/group.entity';
 import { Permission } from '../permission/entities/permission.entity';
-import {
-  CreateModuleController,
-  CreateModuleHandler,
-} from './features/v1/create-module/create-module';
-import {
-  GetModulesByGroupController,
-  GetModulesByGroupHandler,
-} from './features/v1/get-module-by-group/get-module-by-group';
-import {
-  GetModulesByUserController,
-  GetModulesByUserHandler,
-} from './features/v1/get-module-by-user/get-module-by-user';
-import {
-  GetModulesController,
-  GetModulesHandler,
-} from './features/v1/get-module/get-module';
-import {
-  UpdateModuleController,
-  UpdateModuleHandler,
-} from './features/v1/update-module/update-module';
-import { UserRepository } from '../../data/repositories/user.repository';
 import { User } from '../user/entities/user.entity';
+import { CreateModuleHandler } from './features/v1/create-module/create-module';
+import { DeleteModuleHandler } from './features/v1/delete-module/delete-module';
+import { GetModulesByGroupHandler } from './features/v1/get-module-by-group/get-module-by-group';
+import { GetModulesByUserHandler } from './features/v1/get-module-by-user/get-module-by-user';
+import { GetModulesHandler } from './features/v1/get-module/get-module';
+import { UpdateModuleHandler } from './features/v1/update-module/update-module';
 
 @Module({
   imports: [
@@ -44,6 +30,7 @@ import { User } from '../user/entities/user.entity';
     GetModulesByGroupHandler,
     GetModulesByUserHandler,
     UpdateModuleHandler,
+    DeleteModuleHandler,
     ConfigData,
     {
       provide: 'IPermissionRepository',
@@ -62,12 +49,6 @@ import { User } from '../user/entities/user.entity';
       useClass: UserRepository,
     },
   ],
-  controllers: [
-    GetModulesByUserController,
-    CreateModuleController,
-    GetModulesController,
-    GetModulesByGroupController,
-    UpdateModuleController,
-  ],
+  controllers: [],
 })
 export class MenuModule {}

@@ -1,8 +1,7 @@
-import { AmqpConnection, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
+import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
-import { HttpContext } from 'building-blocks/context/context';
 import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { RedisCacheService } from 'building-blocks/redis/redis-cache.service';
 import { encryptPassword } from 'building-blocks/utils/encryption';
@@ -10,7 +9,6 @@ import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { DataSource, QueryRunner } from 'typeorm';
 import { IGroupRepository } from '../../../../../data/repositories/group.repository';
 import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
-import { IProfileRepository } from '../../../../../data/repositories/profile.repository';
 import { IUserRepository } from '../../../../../data/repositories/user.repository';
 import { Group } from '../../../../group/entities/group.entity';
 import { Permission } from '../../../../permission/entities/permission.entity';
@@ -35,14 +33,11 @@ export class VerifyOtpRegisterHandler {
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
     @Inject('IPermissionRepository')
     private readonly permissionRepository: IPermissionRepository,
-    @Inject('IProfileRepository')
-    private readonly profileRepository: IProfileRepository,
     @Inject('IGroupRepository')
     private readonly groupRepository: IGroupRepository,
     private readonly configData: ConfigData,
     private readonly dataSource: DataSource,
-    private readonly amqpConnection: AmqpConnection,
-    private readonly redisCacheService: RedisCacheService,
+    private readonly redisCacheSevice: RedisCacheService,
   ) {}
 
   @RabbitRPC({
@@ -52,12 +47,19 @@ export class VerifyOtpRegisterHandler {
     queueOptions: { autoDelete: true },
   })
   private async execute(payload: any) {
-    console.log(payload);
     const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
 
-    const { email, password, name, permissionIds, groupIds, phone, role } =
-      payload;
+    const {
+      email,
+      password,
+      name,
+      permissionIds,
+      groupIds,
+      phone,
+      role,
+      userLogin,
+    } = payload;
 
     let groups: Group[];
     let permissions: Permission[];
@@ -87,9 +89,10 @@ export class VerifyOtpRegisterHandler {
         isEmailVerified: true,
       });
 
-      const userId = HttpContext.request?.user?.['id'] ?? '99';
-
-      const newUserEntity = this.configData.createData(userEntity, userId);
+      const newUserEntity = this.configData.createData(
+        userEntity,
+        JSON.parse(userLogin),
+      );
 
       // Lưu user entity
       const createdUser = await queryRunner.manager.save(User, newUserEntity);
@@ -106,7 +109,7 @@ export class VerifyOtpRegisterHandler {
 
       const newProfileEntity = this.configData.createData(
         profileEntity,
-        userId,
+        JSON.parse(userLogin),
       );
 
       // Lưu profile entity

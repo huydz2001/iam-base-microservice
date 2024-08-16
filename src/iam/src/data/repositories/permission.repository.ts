@@ -6,13 +6,24 @@ import { TYPE_ACTION } from '../../module/permission/enums/type-action.enum';
 export interface IPermissionRepository {
   createPermission(permission: Permission): Promise<Permission>;
 
+  saveAllPermissions(permissions: Permission[]): Promise<Permission[]>;
+
   findByUserId(id: string): Promise<Permission[]>;
+
+  findByModuleId(id: string): Promise<Permission[]>;
 
   findByGroupId(id: string): Promise<Permission[]>;
 
   findByGroupIds(ids: string[]): Promise<Permission[]>;
 
   findByIds(ids: string[]): Promise<Permission[]>;
+
+  findByTypeAndModuleId(
+    moduleId: string,
+    type: TYPE_ACTION,
+  ): Promise<Permission>;
+
+  findById(id: string): Promise<Permission>;
 
   findAll(): Promise<Permission[]>;
 
@@ -28,6 +39,34 @@ export class PermissionRepository implements IPermissionRepository {
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
   ) {}
+
+  async findByModuleId(id: string): Promise<Permission[]> {
+    return await this.permissionRepository.find({
+      where: {
+        moduleId: id,
+      },
+    });
+  }
+
+  async saveAllPermissions(permissions: Permission[]): Promise<Permission[]> {
+    return await this.permissionRepository.save(permissions);
+  }
+
+  async findByTypeAndModuleId(
+    moduleId: string,
+    type: TYPE_ACTION,
+  ): Promise<Permission> {
+    return await this.permissionRepository.findOne({
+      where: {
+        moduleId: moduleId,
+        type: type,
+      },
+    });
+  }
+
+  async findById(id: string): Promise<Permission> {
+    return await this.permissionRepository.findOne({ where: { id: id } });
+  }
 
   async findByType(type: TYPE_ACTION): Promise<Permission[]> {
     return await this.permissionRepository.find({
