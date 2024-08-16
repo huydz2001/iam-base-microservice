@@ -14,6 +14,11 @@ export interface IPermissionRepository {
 
   findByGroupId(id: string): Promise<Permission[]>;
 
+  findByTypesAndModuleId(
+    types: number[],
+    moduleId: string,
+  ): Promise<Permission[]>;
+
   findByGroupIds(ids: string[]): Promise<Permission[]>;
 
   findByIds(ids: string[]): Promise<Permission[]>;
@@ -39,6 +44,21 @@ export class PermissionRepository implements IPermissionRepository {
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
   ) {}
+
+  async findByTypesAndModuleId(
+    types: number[],
+    moduleId: string,
+  ): Promise<Permission[]> {
+    return await this.permissionRepository.find({
+      where: {
+        type: In(types),
+        moduleId: moduleId,
+      },
+      relations: {
+        module: true,
+      },
+    });
+  }
 
   async findByModuleId(id: string): Promise<Permission[]> {
     return await this.permissionRepository.find({

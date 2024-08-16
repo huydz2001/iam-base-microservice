@@ -12,6 +12,7 @@ export class Modules extends EntityAuditBase<string> {
 
   @OneToMany(() => Permission, (p) => p.module, {
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     nullable: true,
   })
   permisions: Permission[];

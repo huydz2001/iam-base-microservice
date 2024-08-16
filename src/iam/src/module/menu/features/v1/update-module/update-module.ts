@@ -11,12 +11,12 @@ import { ConfigData } from 'building-blocks/databases/config/config-data';
 import { randomQueueName } from 'building-blocks/utils/random-queue';
 import { DataSource, QueryRunner } from 'typeorm';
 import { IModuleRepository } from '../../../../../data/repositories/module.repository';
+import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
 import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
 import { Modules } from '../../../../../module/menu/entities/module.entity';
 import mapper from '../../../../../module/menu/mapping';
 import { Permission } from '../../../../../module/permission/entities/permission.entity';
 import { TYPE_DESC } from '../../../../../module/permission/enums/type-action.enum';
-import { IPermissionRepository } from '../../../../../data/repositories/permission.repository';
 
 // =================================== Command ==========================================
 export class UpdateModule {
@@ -81,11 +81,36 @@ export class UpdateModuleHandler {
           throw new NotFoundException('Parent module not found');
         }
 
-        if (typePermisisons.length > 0) {
-          for (const item of typePermisisons) {
+        const existPermission =
+          await this.permissionRepository.findByModuleId(id);
+        const exsitPermissonType = existPermission.map((item) => item.type);
+
+        const typesDel = exsitPermissonType.filter(
+          (item) => !typePermisisons.includes(item),
+        );
+
+        const typesNew = typePermisisons.filter(
+          (item) => !exsitPermissonType.includes(item),
+        );
+
+        existModule.permisions = existModule.permisions.filter(
+          (item) => !typesDel.includes(item.type),
+        );
+
+        if (typesDel.length > 0) {
+          const permissionsDel =
+            await this.permissionRepository.findByTypesAndModuleId(
+              typesDel,
+              id,
+            );
+          await queryRunner.manager.delete(Permission, permissionsDel);
+        }
+
+        if (typesNew.length > 0) {
+          for (const item of typesNew) {
             let permission = new Permission({
               type: item,
-              moduleId: module.id,
+              moduleId: id,
               desc: TYPE_DESC[`${item}`],
             });
             permission = this.configData.createData(permission, userIdLogin);
@@ -93,16 +118,8 @@ export class UpdateModuleHandler {
             permissions.push(permission);
           }
         }
-        existModule.permisions = [];
       } else {
         existModule.parentId = null;
-      }
-
-      const existPermission =
-        await this.permissionRepository.findByModuleId(id);
-
-      if (existPermission.length > 0) {
-        await queryRunner.manager.delete(Permission, existPermission);
       }
 
       existModule = await queryRunner.manager.save(Modules, existModule);
@@ -118,13 +135,15 @@ export class UpdateModuleHandler {
         new ModuleDto(),
       );
 
-      result.permissions = permissions.map((item) => {
-        return {
-          id: item.id,
-          type: item.type,
-          desc: item.desc,
-        };
-      });
+      result.permissions = [...permissions, ...existModule.permisions].map(
+        (item) => {
+          return {
+            id: item.id,
+            type: item.type,
+            desc: item.desc,
+          };
+        },
+      );
 
       return result;
     } catch (err) {
