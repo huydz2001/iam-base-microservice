@@ -100,7 +100,10 @@ export class UpdateModuleHandler {
 
       const existPermission =
         await this.permissionRepository.findByModuleId(id);
-      await queryRunner.manager.delete(Permission, existPermission);
+
+      if (existPermission.length > 0) {
+        await queryRunner.manager.delete(Permission, existPermission);
+      }
 
       existModule = await queryRunner.manager.save(Modules, existModule);
 

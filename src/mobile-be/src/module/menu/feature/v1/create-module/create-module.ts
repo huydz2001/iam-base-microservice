@@ -1,12 +1,5 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import {
-  Body,
-  Controller,
-  HttpStatus,
-  Logger,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
   ApiBearerAuth,
@@ -22,7 +15,6 @@ import {
   ReponseDto,
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { Response } from 'express';
 import { AdminAuth } from '../../../../../common/decorator/auth.decorator';
 import { ModuleDto } from '../../../../../module/menu/dtos/module.dto';
 
@@ -78,7 +70,6 @@ export class CreateModuleController {
   @AdminAuth()
   async createModule(
     @Body() request: CreateModuleRequestDto,
-    @Res() res: Response,
   ): Promise<ModuleDto> {
     const { name, desc, parentId, typePermisisons } = request;
 
@@ -90,8 +81,6 @@ export class CreateModuleController {
         typePermissions: typePermisisons,
       }),
     );
-
-    res.status(HttpStatus.CREATED).send(result);
 
     return result;
   }
