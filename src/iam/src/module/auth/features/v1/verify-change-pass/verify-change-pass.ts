@@ -47,11 +47,7 @@ export class VerifyOtpChangePassHandler {
 
       const passHash = await encryptPassword(newPass);
 
-      await this.userRepository.updatePass(
-        userId,
-        passHash,
-        JSON.parse(userLoginId),
-      );
+      await this.userRepository.updatePass(userId, passHash, userLoginId);
 
       const user = await this.userRepository.findUserById(userId);
 
