@@ -17,6 +17,7 @@ import {
 } from 'building-blocks/utils/handle-error-rpc';
 import { IsString } from 'class-validator';
 import { Auth } from '../../../../../common/decorator/auth.decorator';
+import { HttpContext } from 'building-blocks/context/context';
 
 export class Logout {
   accessToken: string;
@@ -62,10 +63,11 @@ export class LogoutHandler implements ICommandHandler<Logout> {
 
   async execute(command: Logout) {
     try {
+      const userId = HttpContext.request.user?.['id'];
       const resp = await this.amqpConnection.request<any>({
         exchange: configs.rabbitmq.exchange,
         routingKey: RoutingKey.MOBILE_BE.LOGOUT,
-        payload: command,
+        payload: { ...command, userId: userId },
         timeout: 10000,
       });
 

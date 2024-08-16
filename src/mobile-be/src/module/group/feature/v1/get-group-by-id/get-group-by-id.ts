@@ -1,6 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Controller, Get, Logger, Param } from '@nestjs/common';
-import { CommandBus, ICommandHandler, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
@@ -28,12 +28,12 @@ export class GetGroupById {
   version: '1',
 })
 export class GetGroupByIdController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
   @Get('detail/:id')
   @Auth()
   async getGroupById(@Param('id') id: string): Promise<GroupDto> {
-    const result = await this.commandBus.execute(
+    const result = await this.queryBus.execute(
       new GetGroupById({
         id: id,
       }),
@@ -45,7 +45,7 @@ export class GetGroupByIdController {
 
 // =====================================Command Handler =================================================
 @QueryHandler(GetGroupById)
-export class GetGroupByIdHandler implements ICommandHandler<GetGroupById> {
+export class GetGroupByIdHandler implements IQueryHandler<GetGroupById> {
   private logger = new Logger(GetGroupByIdHandler.name);
   constructor(private readonly amqpConnection: AmqpConnection) {}
 

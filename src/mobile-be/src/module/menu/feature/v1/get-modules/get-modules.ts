@@ -1,6 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Controller, Get, Logger } from '@nestjs/common';
-import { ICommandHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import configs from 'building-blocks/configs/configs';
 import { RoutingKey } from 'building-blocks/constants/rabbitmq.constant';
@@ -37,7 +37,7 @@ export class GetModulesController {
 
 // =====================================Command Handler =================================================
 @QueryHandler(GetModules)
-export class GetModulesHandler implements ICommandHandler<GetModules> {
+export class GetModulesHandler implements IQueryHandler<GetModules> {
   private readonly logger = new Logger(GetModulesHandler.name);
   constructor(private readonly amqpConnection: AmqpConnection) {}
   async execute(query: GetModules): Promise<any[]> {
